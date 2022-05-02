@@ -1,0 +1,3375 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+  <head hexo-theme='https://github.com/volantis-x/hexo-theme-volantis/tree/4.3.1'>
+  <meta charset="utf-8">
+  <!-- SEO相关 -->
+  
+    
+  
+  <!-- 渲染优化 -->
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  <link rel='dns-prefetch' href='https://cdn.jsdelivr.net'>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  <link rel="preload" href="/css/first.css" as="style">
+  
+
+  <!-- 页面元数据 -->
+  
+  <title>几种 IO 方式效率的实验 - YangTY&#39;s Blog</title>
+  
+    <meta name="keywords" content="OI,笔记">
+  
+
+  
+
+  <!-- feed -->
+  
+
+  <!-- import meta -->
+  
+
+  <!-- link -->
+  
+    <link rel="shortcut icon" type='image/x-icon' href="https://q1.qlogo.cn/g?b=qq&nk=375836877&s=5">
+  
+
+  <!-- import link -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/first.css">
+
+  
+
+  
+  <link rel="stylesheet" href="/css/style.css" media="print" onload="this.media='all';this.onload=null">
+  <noscript><link rel="stylesheet" href="/css/style.css"></noscript>
+  
+
+  <script id="loadcss"></script>
+
+  
+<script>
+if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMode))
+    document.write(
+	'<style>'+
+		'html{'+
+			'overflow-x: hidden !important;'+
+			'overflow-y: hidden !important;'+
+		'}'+
+		'.kill-ie{'+
+			'text-align:center;'+
+			'height: 100%;'+
+			'margin-top: 15%;'+
+			'margin-bottom: 5500%;'+
+		'}'+
+	'</style>'+
+    '<div class="kill-ie">'+
+        '<h1><b>抱歉，您的浏览器无法访问本站</b></h1>'+
+        '<h3>微软已经于2016年终止了对 Internet Explorer (IE) 10 及更早版本的支持，<br/>'+
+        '继续使用存在极大的安全隐患，请使用当代主流的浏览器进行访问。</h3><br/>'+
+        '<a target="_blank" rel="noopener" href="https://www.microsoft.com/zh-cn/WindowsForBusiness/End-of-IE-support"><strong>了解详情 ></strong></a>'+
+    '</div>');
+</script>
+
+
+<noscript>
+	<style>
+		html{
+			overflow-x: hidden !important;
+			overflow-y: hidden !important;
+		}
+		.kill-noscript{
+			text-align:center;
+			height: 100%;
+			margin-top: 15%;
+			margin-bottom: 5500%;
+		}
+	</style>
+    <div class="kill-noscript">
+        <h1><b>抱歉，您的浏览器无法访问本站</b></h1>
+        <h3>本页面需要浏览器支持（启用）JavaScript</h3><br/>
+        <a target="_blank" rel="noopener" href="https://www.baidu.com/s?wd=启用JavaScript"><strong>了解详情 ></strong></a>
+    </div>
+</noscript>
+
+</head>
+
+  <body>
+    
+
+<header id="l_header" class="l_header auto shadow blur show" style='opacity: 0' >
+  <div class='container'>
+  <div id='wrapper'>
+    <div class='nav-sub'>
+      <p class="title"></p>
+      <ul class='switcher nav-list-h m-phone' id="pjax-header-nav-list">
+        <li><a id="s-comment" class="fas fa-comments fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+          <li><a id="s-toc" class="s-toc fas fa-list fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+      </ul>
+    </div>
+		<div class="nav-main">
+      
+        
+        <a class="title flat-box" target="_self" href='/'>
+          
+          
+          
+        </a>
+      
+
+			<div class='menu navigation'>
+				<ul class='nav-list-h m-pc'>
+          
+          
+          
+            
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>博客
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/categories/
+                  
+                  
+                  
+                    id="categories"
+                  >
+                  <i class='fas fa-folder-open fa-fw'></i>分类
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/tags/
+                  
+                  
+                  
+                    id="tags"
+                  >
+                  <i class='fas fa-tags fa-fw'></i>标签
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=https://imyangty.com/
+                  
+                  
+                  
+                    id="https:imyangtycom"
+                  >
+                  <i class='fas fa-home fa-fw'></i>主站
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              
+                <li>
+                  <a class="menuitem flat-box">
+                    <i class='fas fa-compact-disc fa-fw music'></i>背景音乐
+                  </a>
+                  <ul class="list-v">
+                    <li>
+                      <div class="aplayer-container">
+                        
+
+  
+    <meting-js
+      theme='#1BCDFC'
+      autoplay='false'
+      volume='0.7'
+      loop='all'
+      order='random'
+      fixed='false'
+      list-max-height='320px'
+      server='netease'
+      type='playlist'
+      id='7338185592'
+      list-folded='true'>
+    </meting-js>
+  
+
+
+                      </div>
+                    </li>
+                  </ul>
+                <li>
+              
+            
+          
+          
+				</ul>
+			</div>
+
+      <div class="m_search">
+        <form name="searchform" class="form u-search-form">
+          <i class="icon fas fa-search fa-fw"></i>
+          <input type="text" class="input u-search-input" placeholder="搜索本站内容" />
+        </form>
+      </div>
+
+			<ul class='switcher nav-list-h m-phone'>
+				
+					<li><a class="s-search fas fa-search fa-fw" target="_self" href='javascript:void(0)'></a></li>
+				
+				<li>
+          <a class="s-menu fas fa-bars fa-fw" target="_self" href='javascript:void(0)'></a>
+          <ul class="menu-phone list-v navigation white-box">
+            
+              
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>博客
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/categories/
+                  
+                  
+                  
+                    id="categories"
+                  >
+                  <i class='fas fa-folder-open fa-fw'></i>分类
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/tags/
+                  
+                  
+                  
+                    id="tags"
+                  >
+                  <i class='fas fa-tags fa-fw'></i>标签
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=https://imyangty.com/
+                  
+                  
+                  
+                    id="https:imyangtycom"
+                  >
+                  <i class='fas fa-home fa-fw'></i>主站
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              
+            
+          
+            
+          </ul>
+        </li>
+			</ul>
+		</div>
+	</div>
+  </div>
+</header>
+
+    <div id="l_body">
+      <div id="l_cover">
+  
+    
+        <div id="full" class='cover-wrapper post dock' style="display: none;">
+          
+            <div id='cover-backstretch'></div>
+          
+          <div class='cover-body'>
+  <div class='top'>
+    
+    
+      <p class="title">YangTY's Blog</p>
+    
+    
+      <p class="subtitle">烟火已谢，笙歌未停</p>
+    
+  </div>
+  <div class='bottom'>
+    <div class='menu navigation'>
+      <div class='list-h'>
+        
+          
+            <a href="/archives/"
+              
+              
+              id="archives">
+              <img src='https://cdn.jsdelivr.net/gh/twitter/twemoji@13.0/assets/svg/1f4f0.svg'><p>文章</p>
+            </a>
+          
+            <a href="/categories/"
+              
+              
+              id="categories">
+              <img src='https://cdn.jsdelivr.net/gh/twitter/twemoji@13.0/assets/svg/1f5c3.svg'><p>分类</p>
+            </a>
+          
+            <a href="/tags/"
+              
+              
+              id="tags">
+              <img src='https://cdn.jsdelivr.net/gh/twitter/twemoji@13.0/assets/svg/1f516.svg'><p>标签</p>
+            </a>
+          
+            <a href="/friends/"
+              
+              
+              id="friends">
+              <img src='https://cdn.jsdelivr.net/gh/twitter/twemoji@13.0/assets/svg/1f389.svg'><p>友链</p>
+            </a>
+          
+            <a href="/about/"
+              
+              
+              id="about">
+              <img src='https://cdn.jsdelivr.net/gh/twitter/twemoji@13.0/assets/svg/1f9ec.svg'><p>关于</p>
+            </a>
+          
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+          <div id="scroll-down" style="display: none;"><i class="fa fa-chevron-down scroll-down-effects"></i></div>
+        </div>
+    
+  
+  </div>
+
+      <div id="safearea">
+        <div class="body-wrapper" id="pjax-container">
+          
+
+<div class='l_main'>
+  <article class="article post white-box reveal md blur article-type-post" id="post" itemscope itemprop="blogPost">
+  
+
+
+  
+  <div class="article-meta" id="top">
+    
+    
+    
+      <h1 class="title">
+        几种 IO 方式效率的实验
+      </h1>
+      <div class='new-meta-box'>
+        
+          
+            
+<div class='new-meta-item author'>
+  <a class='author' href="/" rel="nofollow">
+    <img no-lazy src="https://q1.qlogo.cn/g?b=qq&nk=375836877&s=5">
+    <p>YangTY</p>
+  </a>
+</div>
+
+          
+        
+          
+            
+  <div class='new-meta-item category'>
+    <a class='notlink'>
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <a class="category-link" href="/categories/OI/">OI</a><span class="sep"></span><a class="category-link" href="/categories/OI/notes/">笔记</a>
+    </a>
+  </div>
+
+
+          
+        
+          
+            <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>发布于：2021年10月21日</p>
+  </a>
+</div>
+
+          
+        
+          
+            
+  <div class="new-meta-item browse leancloud">
+    <a class='notlink'>
+      
+      <div id="lc-pv" data-title="几种 IO 方式效率的实验" data-path="/note-iotest/">
+        <i class="fas fa-eye fa-fw" aria-hidden="true"></i>
+        <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+        次浏览
+      </div>
+    </a>
+  </div>
+
+
+          
+        
+      </div>
+    
+  </div>
+
+
+  
+  
+  <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2>
+<p>CSP 前颓废的成果。本文的目的在于测试出各 IO 方式的效率并进行粗略的比对并选择使用。</p>
+<p>控制变量似乎不是很严谨（</p>
+<p>但是能得出大概的结论（</p>
+<p>如果发现有写的不对的地方欢迎直接在评论区 D 我（</p>
+<p>或者加我 QQ 也🉑以。😘</p>
+<h2 id="输入效率测试"><a href="#输入效率测试" class="headerlink" title="输入效率测试"></a>输入效率测试</h2>
+<p>目前我们考虑读入 <span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="3.379ex" height="2.676ex" style="vertical-align: -0.338ex;" viewBox="0 -1006.6 1454.9 1152.1" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-2-Title">
+<title id="MathJax-SVG-2-Title">10^7</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E2-MJMAIN-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"></path>
+<path stroke-width="1" id="E2-MJMAIN-30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"></path>
+<path stroke-width="1" id="E2-MJMAIN-37" d="M55 458Q56 460 72 567L88 674Q88 676 108 676H128V672Q128 662 143 655T195 646T364 644H485V605L417 512Q408 500 387 472T360 435T339 403T319 367T305 330T292 284T284 230T278 162T275 80Q275 66 275 52T274 28V19Q270 2 255 -10T221 -22Q210 -22 200 -19T179 0T168 40Q168 198 265 368Q285 400 349 489L395 552H302Q128 552 119 546Q113 543 108 522T98 479L95 458V455H55V458Z"></path>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E2-MJMAIN-31"></use>
+ <use xlink:href="#E2-MJMAIN-30" x="500" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E2-MJMAIN-37" x="1415" y="557"></use>
+</g>
+</svg></span> 个正整数。</p>
+<p>目前大家熟知的读入方式有下面若干种：C 库的 <code>scanf()</code> 函数，<code>std::cin</code>，手写的 <code>getchar()</code> 版本快读以及 <code>fread</code> 版的快读。</p>
+<p>一般我们认为，<code>cin</code> 很慢，而 <code>scanf</code> 一般被认为比较快，手写的 <code>fread</code> 版是最快的。但是 <code>cin</code> 有种操作叫做关闭流同步：</p>
+<pre><code><figure class="highlight cpp"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ios::sync_with_stdio(<span class="literal">false</span>);</span><br><span class="line"><span class="built_in">cin</span>.tie(<span class="literal">NULL</span>);</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure></code></pre>
+<p><code>cin</code> 关闭流同步之后的效率如何？<code>getchar()</code> 快读和 <code>scanf()</code> 的效率如何？</p>
+<p>我在本机（Intel Core i5-7200U @2.5Ghz，Windows 10 LTSC，GCC 9.2.0）上进行了如下的测试，得到以下测试结果，其中前十个 testcase 没有启用 <code>-O2</code>，后十个在编译时启用了 <code>-O2</code> 选项，取了平均值后的结果如下（单位为 ms）：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">case</th>
+<th style="text-align:center">scanf</th>
+<th style="text-align:center">cin</th>
+<th style="text-align:center">cin2</th>
+<th style="text-align:center">getchar</th>
+<th style="text-align:center">fread</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">avr</td>
+<td style="text-align:center">9561.3</td>
+<td style="text-align:center">19845.9</td>
+<td style="text-align:center">2733.5</td>
+<td style="text-align:center">3490.7</td>
+<td style="text-align:center">470.7</td>
+</tr>
+<tr>
+<td style="text-align:center">avr_O2</td>
+<td style="text-align:center">9277.3</td>
+<td style="text-align:center">18647.6</td>
+<td style="text-align:center">2539.7</td>
+<td style="text-align:center">3065.2</td>
+<td style="text-align:center">160.8</td>
+</tr>
+</tbody>
+</table>
+<p>可见，在本机的平台下，<strong><code>cin</code> 关闭流同步后竟然有不俗的表现</strong>，甚至可以和 <code>getchar</code> 版的快读媲美，但是 <code>fread</code> 吊打一切，在开了 <code>-O2</code> 的情况下更加明显。</p>
+<p>随后我在我的另一台电脑（AMD Ryzen 5 2600 @3.40Ghz，Windows 10 LTSC，GCC 4.8.0）上进行了同样的测试，得到下面的结果：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center"><strong>case</strong></th>
+<th style="text-align:center"><strong>scanf</strong></th>
+<th style="text-align:center"><strong>cin</strong></th>
+<th style="text-align:center"><strong>cin2</strong></th>
+<th style="text-align:center"><strong>getchar</strong></th>
+<th style="text-align:center"><strong>fread</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">avr</td>
+<td style="text-align:center">5746.9</td>
+<td style="text-align:center">6426.4</td>
+<td style="text-align:center">1661.2</td>
+<td style="text-align:center">1468.7</td>
+<td style="text-align:center">299</td>
+</tr>
+<tr>
+<td style="text-align:center">avr_O2</td>
+<td style="text-align:center">5734.5</td>
+<td style="text-align:center">6368.8</td>
+<td style="text-align:center">1639.1</td>
+<td style="text-align:center">1401.4</td>
+<td style="text-align:center">98.6</td>
+</tr>
+</tbody>
+</table>
+<p>发现在不同的平台上，<code>cin</code> 的效率有所不一，但不关闭流同步时必然慢于 <code>scanf</code>，但关闭流同步后表现十分良好，速度相当快，但是时间仍为 <code>fread</code> 的五倍以上。</p>
+<p>接下来在虚拟机内的 NOI Linux 2.0 内进行测试，编译器为 GCC 9.3.0，得到下面的结果（单位 s）：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center"><strong>case</strong></th>
+<th style="text-align:center"><strong>scanf</strong></th>
+<th style="text-align:center"><strong>cin</strong></th>
+<th style="text-align:center"><strong>cin2</strong></th>
+<th style="text-align:center"><strong>getchar</strong></th>
+<th style="text-align:center"><strong>fread</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">avr</td>
+<td style="text-align:center">1.5291</td>
+<td style="text-align:center">2.8893</td>
+<td style="text-align:center">0.675</td>
+<td style="text-align:center">0.5305</td>
+<td style="text-align:center">0.8525</td>
+</tr>
+<tr>
+<td style="text-align:center">avr_O2</td>
+<td style="text-align:center">0.9605</td>
+<td style="text-align:center">2.5989</td>
+<td style="text-align:center">0.5905</td>
+<td style="text-align:center">0.2427</td>
+<td style="text-align:center">0.0863</td>
+</tr>
+</tbody>
+</table>
+<p>然后惊奇的发现，<code>fread</code> 居然比 <code>cin</code> 关流同步后还慢（可能是虚拟机的锅）???但是开 <code>-O2</code> 之后仍旧吊打全场。</p>
+<p>综上，我们有以下结论：</p>
+<ul>
+<li>不同平台/编译器版本下，各种读入方式的效率会有微小的差异。</li>
+<li><strong>千万不要用不关流同步的 <code>cin</code>，相当的慢</strong>。</li>
+<li>IO 量不是特别大的时候可以使用 <code>scanf</code>，当然关流同步的 <code>cin</code> 会有更优的表现。</li>
+<li>IO 量十分巨大的时候可以考虑 <code>cin</code> 关流同步或者 <code>fread</code> 版快读。</li>
+</ul>
+<h2 id="输出效率测试"><a href="#输出效率测试" class="headerlink" title="输出效率测试"></a>输出效率测试</h2>
+<p>考虑输出 <span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="3.379ex" height="2.676ex" style="vertical-align: -0.338ex;" viewBox="0 -1006.6 1454.9 1152.1" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-3-Title">
+<title id="MathJax-SVG-3-Title">10^7</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E3-MJMAIN-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"></path>
+<path stroke-width="1" id="E3-MJMAIN-30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"></path>
+<path stroke-width="1" id="E3-MJMAIN-37" d="M55 458Q56 460 72 567L88 674Q88 676 108 676H128V672Q128 662 143 655T195 646T364 644H485V605L417 512Q408 500 387 472T360 435T339 403T319 367T305 330T292 284T284 230T278 162T275 80Q275 66 275 52T274 28V19Q270 2 255 -10T221 -22Q210 -22 200 -19T179 0T168 40Q168 198 265 368Q285 400 349 489L395 552H302Q128 552 119 546Q113 543 108 522T98 479L95 458V455H55V458Z"></path>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E3-MJMAIN-31"></use>
+ <use xlink:href="#E3-MJMAIN-30" x="500" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E3-MJMAIN-37" x="1415" y="557"></use>
+</g>
+</svg></span> 个正整数，我们一般使用 <code>printf</code>，<code>cout</code>，<code>putchar</code> 或者 <code>fwrite</code> 等方式，类似上面的，我们先用本机测试（单位 ms）：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center"><strong>case</strong></th>
+<th style="text-align:center"><strong>printf</strong></th>
+<th style="text-align:center"><strong>cout</strong></th>
+<th style="text-align:center"><strong>cout_endl</strong></th>
+<th style="text-align:center"><strong>putchar</strong></th>
+<th style="text-align:center"><strong>fwrite</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">avr</td>
+<td style="text-align:center">4101.7</td>
+<td style="text-align:center">1724.4</td>
+<td style="text-align:center">35893.1</td>
+<td style="text-align:center">3432.5</td>
+<td style="text-align:center">3080.6</td>
+</tr>
+<tr>
+<td style="text-align:center">avr_O2</td>
+<td style="text-align:center">3684.5</td>
+<td style="text-align:center">1463.5</td>
+<td style="text-align:center">31412.1</td>
+<td style="text-align:center">3046.3</td>
+<td style="text-align:center">2644.3</td>
+</tr>
+</tbody>
+</table>
+<p>其中 cout_endl 是每输出一个数字用 <code>endl</code> 换行。可以发现几种输出方式的效率差别不是特别大，但是由于 <code>endl</code> 每次会刷新缓冲区，所以会非常的慢，所以需要避免 <code>cout &lt;&lt; n &lt;&lt; endl</code> 这种写法。</p>
+<p>同样附上 AMD 的测试结果：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center"><strong>case</strong></th>
+<th style="text-align:center"><strong>printf</strong></th>
+<th style="text-align:center"><strong>cout</strong></th>
+<th style="text-align:center"><strong>cout_endl</strong></th>
+<th style="text-align:center"><strong>putchar</strong></th>
+<th style="text-align:center"><strong>fwrite</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">avr</td>
+<td style="text-align:center">16860.8</td>
+<td style="text-align:center">1035.9</td>
+<td style="text-align:center">40743.6</td>
+<td style="text-align:center">1709.7</td>
+<td style="text-align:center">1584.7</td>
+</tr>
+<tr>
+<td style="text-align:center">avr_O2</td>
+<td style="text-align:center">16645.8</td>
+<td style="text-align:center">990</td>
+<td style="text-align:center">39787.3</td>
+<td style="text-align:center">1516.3</td>
+<td style="text-align:center">1359.9</td>
+</tr>
+</tbody>
+</table>
+<p>可见不同平台的差异还是存在的。但 <code>cout</code> 的速度依旧可观。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center"><strong>case</strong></th>
+<th style="text-align:center"><strong>printf</strong></th>
+<th style="text-align:center"><strong>cout</strong></th>
+<th style="text-align:center"><strong>cout_endl</strong></th>
+<th style="text-align:center"><strong>putchar</strong></th>
+<th style="text-align:center"><strong>fwrite</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">avr</td>
+<td style="text-align:center">814.5</td>
+<td style="text-align:center">933.6</td>
+<td style="text-align:center">15801</td>
+<td style="text-align:center">1007.7</td>
+<td style="text-align:center">957.5</td>
+</tr>
+<tr>
+<td style="text-align:center">avr_O2</td>
+<td style="text-align:center">830.2</td>
+<td style="text-align:center">945.3</td>
+<td style="text-align:center">16029.3</td>
+<td style="text-align:center">476.4</td>
+<td style="text-align:center">442.6</td>
+</tr>
+</tbody>
+</table>
+<p>结论：</p>
+<ul>
+<li>部分平台上 printf 的表现并不是很好。</li>
+<li>与 <code>cin</code> 相反，**<code>cout</code> 很快。**比想象中的快。</li>
+<li><code>fwrite</code> 并无特别明显的优势，但开了 <code>-O2</code> 之后效率会有所提升。</li>
+</ul>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2>
+<p>这个不是很严谨的小实验告诉了我们在 <strong>IO 量极其巨大</strong>的时候各种 IO 方式的效率差别。但需要注意的是，当数据规模在十万级别及以下时，IO 常数并不是瓶颈，其运行时间都差不多，只需记住不要使用不关闭流同步的 <code>cin</code> 和 <code>endl</code> 即可。</p>
+<p>附自己的 IO 模板：</p>
+<pre><code><figure class="highlight cpp"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cctype&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> il inline</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> FOR(i, a, b) for (int i = (a); i &lt;= (b); ++i)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DEC(i, a, b) for (int i = (a); i &gt;= (b); --i)</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> fastIO {</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> maxc = <span class="number">1</span> &lt;&lt; <span class="number">23</span>;</span><br><span class="line"><span class="keyword">char</span> ibuf[maxc], *__p1 = ibuf, *__p2 = ibuf;</span><br><span class="line"><span class="function">il <span class="keyword">char</span> <span class="title">getchar</span><span class="params">()</span> </span>{<span class="keyword">return</span> __p1 == __p2 &amp;&amp; (__p2 = (__p1 = ibuf) + fread(ibuf, <span class="number">1</span>, maxc, <span class="built_in">stdin</span>), __p1 == __p2) ? EOF : *__p1++;}</span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="keyword">void</span> <span class="title">read</span><span class="params">(T &amp;n)</span> </span>{</span><br><span class="line">    <span class="keyword">int</span> x = <span class="number">0</span>; n = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">char</span> c = getchar();</span><br><span class="line">    <span class="keyword">while</span> (!<span class="built_in">isdigit</span>(c))</span><br><span class="line">        x |= (c == <span class="string">'-'</span>), c = getchar();</span><br><span class="line">    <span class="keyword">while</span> (<span class="built_in">isdigit</span>(c))</span><br><span class="line">        n = n * <span class="number">10</span> + c - <span class="string">'0'</span>, c = getchar();</span><br><span class="line">    n = x ? -n : n;</span><br><span class="line">}</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">read</span><span class="params">(<span class="keyword">char</span> *s)</span> </span>{</span><br><span class="line">    <span class="keyword">int</span> p = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">char</span> c = getchar();</span><br><span class="line">    <span class="keyword">while</span> (!<span class="built_in">isdigit</span>(c) &amp;&amp; !<span class="built_in">isalpha</span>(c)) c = getchar();</span><br><span class="line">    <span class="keyword">while</span> (<span class="built_in">isalpha</span>(c) || <span class="built_in">isdigit</span>(c)) s[p++] = c, c = getchar();</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">}</span><br><span class="line"><span class="keyword">char</span> obuf[maxc], *__pO = obuf;</span><br><span class="line"><span class="function">il <span class="keyword">void</span> <span class="title">putchar</span><span class="params">(<span class="keyword">char</span> c)</span> </span>{*__pO++ = c;}</span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="keyword">void</span> <span class="title">print</span><span class="params">(<span class="keyword">const</span> T &amp;x)</span> </span>{</span><br><span class="line">    <span class="keyword">if</span> (x &lt; <span class="number">0</span>) <span class="built_in">putchar</span>(<span class="string">'-'</span>), print(-x);</span><br><span class="line">    <span class="keyword">else</span> {</span><br><span class="line">        <span class="keyword">if</span> (x &gt; <span class="number">9</span>) print(x / <span class="number">10</span>);</span><br><span class="line">        <span class="built_in">putchar</span>(x % <span class="number">10</span> + <span class="string">'0'</span>);</span><br><span class="line">    }</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">}</span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; il <span class="keyword">void</span> <span class="title">print</span><span class="params">(<span class="keyword">const</span> T &amp;x, <span class="keyword">const</span> <span class="keyword">char</span> &amp;c)</span> </span>{print(x), <span class="built_in">putchar</span>(c);}</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">output</span><span class="params">()</span> </span>{fwrite(obuf, __pO - obuf, <span class="number">1</span>, <span class="built_in">stdout</span>);}</span><br><span class="line">} <span class="comment">// namespace fastIO</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> fastIO;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; il T <span class="title">max</span><span class="params">(<span class="keyword">const</span> T &amp;a, <span class="keyword">const</span> T &amp;b)</span> </span>{<span class="keyword">return</span> a &gt; b ? a : b;}</span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; il T <span class="title">min</span><span class="params">(<span class="keyword">const</span> T &amp;a, <span class="keyword">const</span> T &amp;b)</span> </span>{<span class="keyword">return</span> a &lt; b ? a : b;}</span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; il T <span class="title">myabs</span><span class="params">(<span class="keyword">const</span> T &amp;a)</span> </span>{<span class="keyword">return</span> a &gt;= <span class="number">0</span> ? a : -a;}</span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; il <span class="keyword">void</span> <span class="title">myswap</span><span class="params">(T &amp;a, T &amp;b)</span> </span>{</span><br><span class="line">    T t = a;</span><br><span class="line">    a = b, b = t;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>{</span><br><span class="line">    <span class="keyword">return</span> output(), <span class="number">0</span>;</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure></code></pre>
+<h2 id="附-1：完整测试结果"><a href="#附-1：完整测试结果" class="headerlink" title="附 1：完整测试结果"></a>附 1：完整测试结果</h2>
+<h3 id="本机-i5"><a href="#本机-i5" class="headerlink" title="本机 i5"></a>本机 i5</h3>
+<p>Intel Core i5-7200U @2.5Ghz，Windows 10 LTSC。</p>
+<p>读入测试：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center"><strong>case</strong></th>
+<th style="text-align:center"><strong>printf</strong></th>
+<th style="text-align:center"><strong>cout</strong></th>
+<th style="text-align:center"><strong>cout_endl</strong></th>
+<th style="text-align:center"><strong>putchar</strong></th>
+<th style="text-align:center"><strong>fwrite</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">3314</td>
+<td style="text-align:center">1480</td>
+<td style="text-align:center">36724</td>
+<td style="text-align:center">3870</td>
+<td style="text-align:center">3984</td>
+</tr>
+<tr>
+<td style="text-align:center">2</td>
+<td style="text-align:center">3547</td>
+<td style="text-align:center">1688</td>
+<td style="text-align:center">38312</td>
+<td style="text-align:center">2971</td>
+<td style="text-align:center">3240</td>
+</tr>
+<tr>
+<td style="text-align:center">3</td>
+<td style="text-align:center">3825</td>
+<td style="text-align:center">1542</td>
+<td style="text-align:center">35739</td>
+<td style="text-align:center">3720</td>
+<td style="text-align:center">3022</td>
+</tr>
+<tr>
+<td style="text-align:center">4</td>
+<td style="text-align:center">5375</td>
+<td style="text-align:center">1685</td>
+<td style="text-align:center">35577</td>
+<td style="text-align:center">3387</td>
+<td style="text-align:center">2600</td>
+</tr>
+<tr>
+<td style="text-align:center">5</td>
+<td style="text-align:center">4626</td>
+<td style="text-align:center">1857</td>
+<td style="text-align:center">32677</td>
+<td style="text-align:center">3168</td>
+<td style="text-align:center">2497</td>
+</tr>
+<tr>
+<td style="text-align:center">6</td>
+<td style="text-align:center">3705</td>
+<td style="text-align:center">1582</td>
+<td style="text-align:center">32974</td>
+<td style="text-align:center">3725</td>
+<td style="text-align:center">2796</td>
+</tr>
+<tr>
+<td style="text-align:center">7</td>
+<td style="text-align:center">4214</td>
+<td style="text-align:center">2192</td>
+<td style="text-align:center">36730</td>
+<td style="text-align:center">4043</td>
+<td style="text-align:center">2793</td>
+</tr>
+<tr>
+<td style="text-align:center">8</td>
+<td style="text-align:center">3777</td>
+<td style="text-align:center">1615</td>
+<td style="text-align:center">37561</td>
+<td style="text-align:center">3217</td>
+<td style="text-align:center">3505</td>
+</tr>
+<tr>
+<td style="text-align:center">9</td>
+<td style="text-align:center">4650</td>
+<td style="text-align:center">1507</td>
+<td style="text-align:center">36534</td>
+<td style="text-align:center">3287</td>
+<td style="text-align:center">3079</td>
+</tr>
+<tr>
+<td style="text-align:center">10</td>
+<td style="text-align:center">3984</td>
+<td style="text-align:center">2096</td>
+<td style="text-align:center">36103</td>
+<td style="text-align:center">2937</td>
+<td style="text-align:center">3290</td>
+</tr>
+<tr>
+<td style="text-align:center">11</td>
+<td style="text-align:center">3773</td>
+<td style="text-align:center">1444</td>
+<td style="text-align:center">31294</td>
+<td style="text-align:center">3062</td>
+<td style="text-align:center">2546</td>
+</tr>
+<tr>
+<td style="text-align:center">12</td>
+<td style="text-align:center">3599</td>
+<td style="text-align:center">1456</td>
+<td style="text-align:center">32554</td>
+<td style="text-align:center">2825</td>
+<td style="text-align:center">3408</td>
+</tr>
+<tr>
+<td style="text-align:center">13</td>
+<td style="text-align:center">3804</td>
+<td style="text-align:center">1609</td>
+<td style="text-align:center">33589</td>
+<td style="text-align:center">3048</td>
+<td style="text-align:center">2495</td>
+</tr>
+<tr>
+<td style="text-align:center">14</td>
+<td style="text-align:center">3598</td>
+<td style="text-align:center">1434</td>
+<td style="text-align:center">30778</td>
+<td style="text-align:center">3090</td>
+<td style="text-align:center">2499</td>
+</tr>
+<tr>
+<td style="text-align:center">15</td>
+<td style="text-align:center">3710</td>
+<td style="text-align:center">1449</td>
+<td style="text-align:center">31659</td>
+<td style="text-align:center">3153</td>
+<td style="text-align:center">2476</td>
+</tr>
+<tr>
+<td style="text-align:center">16</td>
+<td style="text-align:center">3638</td>
+<td style="text-align:center">1445</td>
+<td style="text-align:center">30739</td>
+<td style="text-align:center">3045</td>
+<td style="text-align:center">2619</td>
+</tr>
+<tr>
+<td style="text-align:center">17</td>
+<td style="text-align:center">3816</td>
+<td style="text-align:center">1475</td>
+<td style="text-align:center">30838</td>
+<td style="text-align:center">3063</td>
+<td style="text-align:center">2509</td>
+</tr>
+<tr>
+<td style="text-align:center">18</td>
+<td style="text-align:center">3588</td>
+<td style="text-align:center">1437</td>
+<td style="text-align:center">30844</td>
+<td style="text-align:center">3045</td>
+<td style="text-align:center">2501</td>
+</tr>
+<tr>
+<td style="text-align:center">19</td>
+<td style="text-align:center">3591</td>
+<td style="text-align:center">1443</td>
+<td style="text-align:center">30862</td>
+<td style="text-align:center">3071</td>
+<td style="text-align:center">2861</td>
+</tr>
+<tr>
+<td style="text-align:center">20</td>
+<td style="text-align:center">3728</td>
+<td style="text-align:center">1443</td>
+<td style="text-align:center">30964</td>
+<td style="text-align:center">3061</td>
+<td style="text-align:center">2529</td>
+</tr>
+<tr>
+<td style="text-align:center">avr</td>
+<td style="text-align:center">4101.7</td>
+<td style="text-align:center">1724.4</td>
+<td style="text-align:center">35893.1</td>
+<td style="text-align:center">3432.5</td>
+<td style="text-align:center">3080.6</td>
+</tr>
+<tr>
+<td style="text-align:center">avr_O2</td>
+<td style="text-align:center">3684.5</td>
+<td style="text-align:center">1463.5</td>
+<td style="text-align:center">31412.1</td>
+<td style="text-align:center">3046.3</td>
+<td style="text-align:center">2644.3</td>
+</tr>
+</tbody>
+</table>
+<h3 id="AMD-R5-2600"><a href="#AMD-R5-2600" class="headerlink" title="AMD R5 2600"></a>AMD R5 2600</h3>
+<p>AMD R5 2600 @3.40Ghz，Windows 10 LTSC。</p>
+<p>输入测试：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center"><strong>case</strong></th>
+<th style="text-align:center"><strong>scanf</strong></th>
+<th style="text-align:center"><strong>cin</strong></th>
+<th style="text-align:center"><strong>cin2</strong></th>
+<th style="text-align:center"><strong>getchar</strong></th>
+<th style="text-align:center"><strong>fread</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">5755</td>
+<td style="text-align:center">6403</td>
+<td style="text-align:center">1654</td>
+<td style="text-align:center">1469</td>
+<td style="text-align:center">298</td>
+</tr>
+<tr>
+<td style="text-align:center">2</td>
+<td style="text-align:center">5725</td>
+<td style="text-align:center">6441</td>
+<td style="text-align:center">1651</td>
+<td style="text-align:center">1467</td>
+<td style="text-align:center">301</td>
+</tr>
+<tr>
+<td style="text-align:center">3</td>
+<td style="text-align:center">5740</td>
+<td style="text-align:center">6452</td>
+<td style="text-align:center">1661</td>
+<td style="text-align:center">1472</td>
+<td style="text-align:center">301</td>
+</tr>
+<tr>
+<td style="text-align:center">4</td>
+<td style="text-align:center">5749</td>
+<td style="text-align:center">6435</td>
+<td style="text-align:center">1670</td>
+<td style="text-align:center">1484</td>
+<td style="text-align:center">298</td>
+</tr>
+<tr>
+<td style="text-align:center">5</td>
+<td style="text-align:center">5739</td>
+<td style="text-align:center">6437</td>
+<td style="text-align:center">1671</td>
+<td style="text-align:center">1471</td>
+<td style="text-align:center">299</td>
+</tr>
+<tr>
+<td style="text-align:center">6</td>
+<td style="text-align:center">5761</td>
+<td style="text-align:center">6428</td>
+<td style="text-align:center">1661</td>
+<td style="text-align:center">1474</td>
+<td style="text-align:center">298</td>
+</tr>
+<tr>
+<td style="text-align:center">7</td>
+<td style="text-align:center">5769</td>
+<td style="text-align:center">6424</td>
+<td style="text-align:center">1660</td>
+<td style="text-align:center">1463</td>
+<td style="text-align:center">297</td>
+</tr>
+<tr>
+<td style="text-align:center">8</td>
+<td style="text-align:center">5761</td>
+<td style="text-align:center">6429</td>
+<td style="text-align:center">1662</td>
+<td style="text-align:center">1461</td>
+<td style="text-align:center">301</td>
+</tr>
+<tr>
+<td style="text-align:center">9</td>
+<td style="text-align:center">5735</td>
+<td style="text-align:center">6395</td>
+<td style="text-align:center">1668</td>
+<td style="text-align:center">1464</td>
+<td style="text-align:center">295</td>
+</tr>
+<tr>
+<td style="text-align:center">10</td>
+<td style="text-align:center">5735</td>
+<td style="text-align:center">6420</td>
+<td style="text-align:center">1654</td>
+<td style="text-align:center">1462</td>
+<td style="text-align:center">302</td>
+</tr>
+<tr>
+<td style="text-align:center">11</td>
+<td style="text-align:center">5781</td>
+<td style="text-align:center">6388</td>
+<td style="text-align:center">1658</td>
+<td style="text-align:center">1403</td>
+<td style="text-align:center">99</td>
+</tr>
+<tr>
+<td style="text-align:center">12</td>
+<td style="text-align:center">5725</td>
+<td style="text-align:center">6379</td>
+<td style="text-align:center">1641</td>
+<td style="text-align:center">1397</td>
+<td style="text-align:center">99</td>
+</tr>
+<tr>
+<td style="text-align:center">13</td>
+<td style="text-align:center">5725</td>
+<td style="text-align:center">6342</td>
+<td style="text-align:center">1636</td>
+<td style="text-align:center">1401</td>
+<td style="text-align:center">98</td>
+</tr>
+<tr>
+<td style="text-align:center">14</td>
+<td style="text-align:center">5727</td>
+<td style="text-align:center">6335</td>
+<td style="text-align:center">1634</td>
+<td style="text-align:center">1405</td>
+<td style="text-align:center">99</td>
+</tr>
+<tr>
+<td style="text-align:center">15</td>
+<td style="text-align:center">5778</td>
+<td style="text-align:center">6354</td>
+<td style="text-align:center">1630</td>
+<td style="text-align:center">1400</td>
+<td style="text-align:center">98</td>
+</tr>
+<tr>
+<td style="text-align:center">16</td>
+<td style="text-align:center">5700</td>
+<td style="text-align:center">6388</td>
+<td style="text-align:center">1635</td>
+<td style="text-align:center">1401</td>
+<td style="text-align:center">98</td>
+</tr>
+<tr>
+<td style="text-align:center">17</td>
+<td style="text-align:center">5750</td>
+<td style="text-align:center">6368</td>
+<td style="text-align:center">1639</td>
+<td style="text-align:center">1401</td>
+<td style="text-align:center">99</td>
+</tr>
+<tr>
+<td style="text-align:center">18</td>
+<td style="text-align:center">5731</td>
+<td style="text-align:center">6372</td>
+<td style="text-align:center">1638</td>
+<td style="text-align:center">1404</td>
+<td style="text-align:center">99</td>
+</tr>
+<tr>
+<td style="text-align:center">19</td>
+<td style="text-align:center">5715</td>
+<td style="text-align:center">6386</td>
+<td style="text-align:center">1642</td>
+<td style="text-align:center">1406</td>
+<td style="text-align:center">99</td>
+</tr>
+<tr>
+<td style="text-align:center">20</td>
+<td style="text-align:center">5713</td>
+<td style="text-align:center">6376</td>
+<td style="text-align:center">1638</td>
+<td style="text-align:center">1396</td>
+<td style="text-align:center">98</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>avr</strong></td>
+<td style="text-align:center"><strong>5746.9</strong></td>
+<td style="text-align:center"><strong>6426.4</strong></td>
+<td style="text-align:center"><strong>1661.2</strong></td>
+<td style="text-align:center"><strong>1468.7</strong></td>
+<td style="text-align:center"><strong>299</strong></td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>avr_O2</strong></td>
+<td style="text-align:center"><strong>5734.5</strong></td>
+<td style="text-align:center"><strong>6368.8</strong></td>
+<td style="text-align:center"><strong>1639.1</strong></td>
+<td style="text-align:center"><strong>1401.4</strong></td>
+<td style="text-align:center"><strong>98.6</strong></td>
+</tr>
+</tbody>
+</table>
+<p>输出测试：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center"><strong>case</strong></th>
+<th style="text-align:center"><strong>printf</strong></th>
+<th style="text-align:center"><strong>cout</strong></th>
+<th style="text-align:center"><strong>cout_endl</strong></th>
+<th style="text-align:center"><strong>putchar</strong></th>
+<th style="text-align:center"><strong>fwrite</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">16545</td>
+<td style="text-align:center">1004</td>
+<td style="text-align:center">39836</td>
+<td style="text-align:center">1693</td>
+<td style="text-align:center">1594</td>
+</tr>
+<tr>
+<td style="text-align:center">2</td>
+<td style="text-align:center">16756</td>
+<td style="text-align:center">1044</td>
+<td style="text-align:center">40895</td>
+<td style="text-align:center">1695</td>
+<td style="text-align:center">1581</td>
+</tr>
+<tr>
+<td style="text-align:center">3</td>
+<td style="text-align:center">16820</td>
+<td style="text-align:center">1032</td>
+<td style="text-align:center">40841</td>
+<td style="text-align:center">1692</td>
+<td style="text-align:center">1565</td>
+</tr>
+<tr>
+<td style="text-align:center">4</td>
+<td style="text-align:center">16655</td>
+<td style="text-align:center">1014</td>
+<td style="text-align:center">40853</td>
+<td style="text-align:center">1737</td>
+<td style="text-align:center">1593</td>
+</tr>
+<tr>
+<td style="text-align:center">5</td>
+<td style="text-align:center">17147</td>
+<td style="text-align:center">1078</td>
+<td style="text-align:center">41379</td>
+<td style="text-align:center">1736</td>
+<td style="text-align:center">1599</td>
+</tr>
+<tr>
+<td style="text-align:center">6</td>
+<td style="text-align:center">16965</td>
+<td style="text-align:center">1065</td>
+<td style="text-align:center">41250</td>
+<td style="text-align:center">1749</td>
+<td style="text-align:center">1608</td>
+</tr>
+<tr>
+<td style="text-align:center">7</td>
+<td style="text-align:center">17099</td>
+<td style="text-align:center">1048</td>
+<td style="text-align:center">40937</td>
+<td style="text-align:center">1712</td>
+<td style="text-align:center">1586</td>
+</tr>
+<tr>
+<td style="text-align:center">8</td>
+<td style="text-align:center">16981</td>
+<td style="text-align:center">1021</td>
+<td style="text-align:center">40266</td>
+<td style="text-align:center">1698</td>
+<td style="text-align:center">1568</td>
+</tr>
+<tr>
+<td style="text-align:center">9</td>
+<td style="text-align:center">16814</td>
+<td style="text-align:center">1016</td>
+<td style="text-align:center">40719</td>
+<td style="text-align:center">1712</td>
+<td style="text-align:center">1590</td>
+</tr>
+<tr>
+<td style="text-align:center">10</td>
+<td style="text-align:center">16826</td>
+<td style="text-align:center">1037</td>
+<td style="text-align:center">40460</td>
+<td style="text-align:center">1673</td>
+<td style="text-align:center">1563</td>
+</tr>
+<tr>
+<td style="text-align:center">11</td>
+<td style="text-align:center">16470</td>
+<td style="text-align:center">994</td>
+<td style="text-align:center">39597</td>
+<td style="text-align:center">1513</td>
+<td style="text-align:center">1356</td>
+</tr>
+<tr>
+<td style="text-align:center">12</td>
+<td style="text-align:center">16584</td>
+<td style="text-align:center">1009</td>
+<td style="text-align:center">39748</td>
+<td style="text-align:center">1511</td>
+<td style="text-align:center">1365</td>
+</tr>
+<tr>
+<td style="text-align:center">13</td>
+<td style="text-align:center">16669</td>
+<td style="text-align:center">996</td>
+<td style="text-align:center">40008</td>
+<td style="text-align:center">1529</td>
+<td style="text-align:center">1362</td>
+</tr>
+<tr>
+<td style="text-align:center">14</td>
+<td style="text-align:center">16725</td>
+<td style="text-align:center">1002</td>
+<td style="text-align:center">39792</td>
+<td style="text-align:center">1515</td>
+<td style="text-align:center">1352</td>
+</tr>
+<tr>
+<td style="text-align:center">15</td>
+<td style="text-align:center">16647</td>
+<td style="text-align:center">997</td>
+<td style="text-align:center">39718</td>
+<td style="text-align:center">1509</td>
+<td style="text-align:center">1368</td>
+</tr>
+<tr>
+<td style="text-align:center">16</td>
+<td style="text-align:center">16654</td>
+<td style="text-align:center">979</td>
+<td style="text-align:center">39874</td>
+<td style="text-align:center">1512</td>
+<td style="text-align:center">1355</td>
+</tr>
+<tr>
+<td style="text-align:center">17</td>
+<td style="text-align:center">16628</td>
+<td style="text-align:center">1000</td>
+<td style="text-align:center">39667</td>
+<td style="text-align:center">1514</td>
+<td style="text-align:center">1354</td>
+</tr>
+<tr>
+<td style="text-align:center">18</td>
+<td style="text-align:center">16660</td>
+<td style="text-align:center">968</td>
+<td style="text-align:center">39887</td>
+<td style="text-align:center">1533</td>
+<td style="text-align:center">1369</td>
+</tr>
+<tr>
+<td style="text-align:center">19</td>
+<td style="text-align:center">16643</td>
+<td style="text-align:center">987</td>
+<td style="text-align:center">39732</td>
+<td style="text-align:center">1514</td>
+<td style="text-align:center">1362</td>
+</tr>
+<tr>
+<td style="text-align:center">20</td>
+<td style="text-align:center">16778</td>
+<td style="text-align:center">968</td>
+<td style="text-align:center">39850</td>
+<td style="text-align:center">1513</td>
+<td style="text-align:center">1356</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>avr</strong></td>
+<td style="text-align:center"><strong>16860.8</strong></td>
+<td style="text-align:center"><strong>1035.9</strong></td>
+<td style="text-align:center"><strong>40743.6</strong></td>
+<td style="text-align:center"><strong>1709.7</strong></td>
+<td style="text-align:center"><strong>1584.7</strong></td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>avr_O2</strong></td>
+<td style="text-align:center"><strong>16645.8</strong></td>
+<td style="text-align:center"><strong>990</strong></td>
+<td style="text-align:center"><strong>39787.3</strong></td>
+<td style="text-align:center"><strong>1516.3</strong></td>
+<td style="text-align:center"><strong>1359.9</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="虚拟机-NOI-Linux-2-0"><a href="#虚拟机-NOI-Linux-2-0" class="headerlink" title="虚拟机 NOI Linux 2.0"></a>虚拟机 NOI Linux 2.0</h3>
+<p>输入测试：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center"><strong>case</strong></th>
+<th style="text-align:center"><strong>scanf</strong></th>
+<th style="text-align:center"><strong>cin</strong></th>
+<th style="text-align:center"><strong>cin2</strong></th>
+<th style="text-align:center"><strong>getchar</strong></th>
+<th style="text-align:center"><strong>fread</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1.554</td>
+<td style="text-align:center">2.897</td>
+<td style="text-align:center">0.677</td>
+<td style="text-align:center">0.532</td>
+<td style="text-align:center">0.856</td>
+</tr>
+<tr>
+<td style="text-align:center">2</td>
+<td style="text-align:center">1.523</td>
+<td style="text-align:center">2.91</td>
+<td style="text-align:center">0.674</td>
+<td style="text-align:center">0.531</td>
+<td style="text-align:center">0.851</td>
+</tr>
+<tr>
+<td style="text-align:center">3</td>
+<td style="text-align:center">1.498</td>
+<td style="text-align:center">2.947</td>
+<td style="text-align:center">0.675</td>
+<td style="text-align:center">0.527</td>
+<td style="text-align:center">0.852</td>
+</tr>
+<tr>
+<td style="text-align:center">4</td>
+<td style="text-align:center">1.51</td>
+<td style="text-align:center">2.839</td>
+<td style="text-align:center">0.674</td>
+<td style="text-align:center">0.532</td>
+<td style="text-align:center">0.854</td>
+</tr>
+<tr>
+<td style="text-align:center">5</td>
+<td style="text-align:center">1.526</td>
+<td style="text-align:center">2.899</td>
+<td style="text-align:center">0.676</td>
+<td style="text-align:center">0.532</td>
+<td style="text-align:center">0.852</td>
+</tr>
+<tr>
+<td style="text-align:center">6</td>
+<td style="text-align:center">1.55</td>
+<td style="text-align:center">2.896</td>
+<td style="text-align:center">0.675</td>
+<td style="text-align:center">0.533</td>
+<td style="text-align:center">0.852</td>
+</tr>
+<tr>
+<td style="text-align:center">7</td>
+<td style="text-align:center">1.553</td>
+<td style="text-align:center">2.86</td>
+<td style="text-align:center">0.675</td>
+<td style="text-align:center">0.525</td>
+<td style="text-align:center">0.853</td>
+</tr>
+<tr>
+<td style="text-align:center">8</td>
+<td style="text-align:center">1.496</td>
+<td style="text-align:center">2.935</td>
+<td style="text-align:center">0.675</td>
+<td style="text-align:center">0.529</td>
+<td style="text-align:center">0.852</td>
+</tr>
+<tr>
+<td style="text-align:center">9</td>
+<td style="text-align:center">1.545</td>
+<td style="text-align:center">2.836</td>
+<td style="text-align:center">0.673</td>
+<td style="text-align:center">0.532</td>
+<td style="text-align:center">0.852</td>
+</tr>
+<tr>
+<td style="text-align:center">10</td>
+<td style="text-align:center">1.536</td>
+<td style="text-align:center">2.874</td>
+<td style="text-align:center">0.676</td>
+<td style="text-align:center">0.532</td>
+<td style="text-align:center">0.851</td>
+</tr>
+<tr>
+<td style="text-align:center">11</td>
+<td style="text-align:center">0.957</td>
+<td style="text-align:center">2.656</td>
+<td style="text-align:center">0.59</td>
+<td style="text-align:center">0.242</td>
+<td style="text-align:center">0.086</td>
+</tr>
+<tr>
+<td style="text-align:center">12</td>
+<td style="text-align:center">0.966</td>
+<td style="text-align:center">2.613</td>
+<td style="text-align:center">0.588</td>
+<td style="text-align:center">0.243</td>
+<td style="text-align:center">0.087</td>
+</tr>
+<tr>
+<td style="text-align:center">13</td>
+<td style="text-align:center">0.954</td>
+<td style="text-align:center">2.547</td>
+<td style="text-align:center">0.591</td>
+<td style="text-align:center">0.243</td>
+<td style="text-align:center">0.086</td>
+</tr>
+<tr>
+<td style="text-align:center">14</td>
+<td style="text-align:center">0.948</td>
+<td style="text-align:center">2.546</td>
+<td style="text-align:center">0.588</td>
+<td style="text-align:center">0.242</td>
+<td style="text-align:center">0.086</td>
+</tr>
+<tr>
+<td style="text-align:center">15</td>
+<td style="text-align:center">0.968</td>
+<td style="text-align:center">2.564</td>
+<td style="text-align:center">0.588</td>
+<td style="text-align:center">0.242</td>
+<td style="text-align:center">0.086</td>
+</tr>
+<tr>
+<td style="text-align:center">16</td>
+<td style="text-align:center">0.942</td>
+<td style="text-align:center">2.549</td>
+<td style="text-align:center">0.593</td>
+<td style="text-align:center">0.243</td>
+<td style="text-align:center">0.086</td>
+</tr>
+<tr>
+<td style="text-align:center">17</td>
+<td style="text-align:center">0.993</td>
+<td style="text-align:center">2.61</td>
+<td style="text-align:center">0.59</td>
+<td style="text-align:center">0.243</td>
+<td style="text-align:center">0.086</td>
+</tr>
+<tr>
+<td style="text-align:center">18</td>
+<td style="text-align:center">0.945</td>
+<td style="text-align:center">2.611</td>
+<td style="text-align:center">0.591</td>
+<td style="text-align:center">0.243</td>
+<td style="text-align:center">0.086</td>
+</tr>
+<tr>
+<td style="text-align:center">19</td>
+<td style="text-align:center">0.955</td>
+<td style="text-align:center">2.621</td>
+<td style="text-align:center">0.593</td>
+<td style="text-align:center">0.243</td>
+<td style="text-align:center">0.087</td>
+</tr>
+<tr>
+<td style="text-align:center">20</td>
+<td style="text-align:center">0.977</td>
+<td style="text-align:center">2.672</td>
+<td style="text-align:center">0.593</td>
+<td style="text-align:center">0.243</td>
+<td style="text-align:center">0.087</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>avr</strong></td>
+<td style="text-align:center"><strong>1.5291</strong></td>
+<td style="text-align:center"><strong>2.8893</strong></td>
+<td style="text-align:center"><strong>0.675</strong></td>
+<td style="text-align:center"><strong>0.5305</strong></td>
+<td style="text-align:center"><strong>0.8525</strong></td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>avr_O2</strong></td>
+<td style="text-align:center"><strong>0.9605</strong></td>
+<td style="text-align:center"><strong>2.5989</strong></td>
+<td style="text-align:center"><strong>0.5905</strong></td>
+<td style="text-align:center"><strong>0.2427</strong></td>
+<td style="text-align:center"><strong>0.0863</strong></td>
+</tr>
+</tbody>
+</table>
+<p>输出测试：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center"><strong>case</strong></th>
+<th style="text-align:center"><strong>printf</strong></th>
+<th style="text-align:center"><strong>cout</strong></th>
+<th style="text-align:center"><strong>cout_endl</strong></th>
+<th style="text-align:center"><strong>putchar</strong></th>
+<th style="text-align:center"><strong>fwrite</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">858</td>
+<td style="text-align:center">924</td>
+<td style="text-align:center">15804</td>
+<td style="text-align:center">988</td>
+<td style="text-align:center">946</td>
+</tr>
+<tr>
+<td style="text-align:center">2</td>
+<td style="text-align:center">811</td>
+<td style="text-align:center">929</td>
+<td style="text-align:center">15878</td>
+<td style="text-align:center">1007</td>
+<td style="text-align:center">970</td>
+</tr>
+<tr>
+<td style="text-align:center">3</td>
+<td style="text-align:center">831</td>
+<td style="text-align:center">942</td>
+<td style="text-align:center">15617</td>
+<td style="text-align:center">1007</td>
+<td style="text-align:center">977</td>
+</tr>
+<tr>
+<td style="text-align:center">4</td>
+<td style="text-align:center">815</td>
+<td style="text-align:center">927</td>
+<td style="text-align:center">15745</td>
+<td style="text-align:center">1016</td>
+<td style="text-align:center">945</td>
+</tr>
+<tr>
+<td style="text-align:center">5</td>
+<td style="text-align:center">741</td>
+<td style="text-align:center">925</td>
+<td style="text-align:center">16205</td>
+<td style="text-align:center">990</td>
+<td style="text-align:center">948</td>
+</tr>
+<tr>
+<td style="text-align:center">6</td>
+<td style="text-align:center">818</td>
+<td style="text-align:center">931</td>
+<td style="text-align:center">15274</td>
+<td style="text-align:center">1040</td>
+<td style="text-align:center">956</td>
+</tr>
+<tr>
+<td style="text-align:center">7</td>
+<td style="text-align:center">790</td>
+<td style="text-align:center">931</td>
+<td style="text-align:center">15607</td>
+<td style="text-align:center">1014</td>
+<td style="text-align:center">965</td>
+</tr>
+<tr>
+<td style="text-align:center">8</td>
+<td style="text-align:center">864</td>
+<td style="text-align:center">926</td>
+<td style="text-align:center">15554</td>
+<td style="text-align:center">1001</td>
+<td style="text-align:center">957</td>
+</tr>
+<tr>
+<td style="text-align:center">9</td>
+<td style="text-align:center">824</td>
+<td style="text-align:center">950</td>
+<td style="text-align:center">15842</td>
+<td style="text-align:center">1007</td>
+<td style="text-align:center">954</td>
+</tr>
+<tr>
+<td style="text-align:center">10</td>
+<td style="text-align:center">793</td>
+<td style="text-align:center">951</td>
+<td style="text-align:center">16484</td>
+<td style="text-align:center">1007</td>
+<td style="text-align:center">957</td>
+</tr>
+<tr>
+<td style="text-align:center">11</td>
+<td style="text-align:center">792</td>
+<td style="text-align:center">949</td>
+<td style="text-align:center">16338</td>
+<td style="text-align:center">483</td>
+<td style="text-align:center">456</td>
+</tr>
+<tr>
+<td style="text-align:center">12</td>
+<td style="text-align:center">854</td>
+<td style="text-align:center">969</td>
+<td style="text-align:center">15373</td>
+<td style="text-align:center">467</td>
+<td style="text-align:center">445</td>
+</tr>
+<tr>
+<td style="text-align:center">13</td>
+<td style="text-align:center">845</td>
+<td style="text-align:center">992</td>
+<td style="text-align:center">16049</td>
+<td style="text-align:center">472</td>
+<td style="text-align:center">440</td>
+</tr>
+<tr>
+<td style="text-align:center">14</td>
+<td style="text-align:center">796</td>
+<td style="text-align:center">923</td>
+<td style="text-align:center">15824</td>
+<td style="text-align:center">478</td>
+<td style="text-align:center">443</td>
+</tr>
+<tr>
+<td style="text-align:center">15</td>
+<td style="text-align:center">878</td>
+<td style="text-align:center">960</td>
+<td style="text-align:center">16087</td>
+<td style="text-align:center">474</td>
+<td style="text-align:center">437</td>
+</tr>
+<tr>
+<td style="text-align:center">16</td>
+<td style="text-align:center">817</td>
+<td style="text-align:center">936</td>
+<td style="text-align:center">16525</td>
+<td style="text-align:center">485</td>
+<td style="text-align:center">449</td>
+</tr>
+<tr>
+<td style="text-align:center">17</td>
+<td style="text-align:center">800</td>
+<td style="text-align:center">941</td>
+<td style="text-align:center">15988</td>
+<td style="text-align:center">474</td>
+<td style="text-align:center">438</td>
+</tr>
+<tr>
+<td style="text-align:center">18</td>
+<td style="text-align:center">845</td>
+<td style="text-align:center">934</td>
+<td style="text-align:center">15650</td>
+<td style="text-align:center">466</td>
+<td style="text-align:center">435</td>
+</tr>
+<tr>
+<td style="text-align:center">19</td>
+<td style="text-align:center">836</td>
+<td style="text-align:center">901</td>
+<td style="text-align:center">15754</td>
+<td style="text-align:center">476</td>
+<td style="text-align:center">434</td>
+</tr>
+<tr>
+<td style="text-align:center">20</td>
+<td style="text-align:center">839</td>
+<td style="text-align:center">948</td>
+<td style="text-align:center">16705</td>
+<td style="text-align:center">489</td>
+<td style="text-align:center">449</td>
+</tr>
+<tr>
+<td style="text-align:center">avr</td>
+<td style="text-align:center">814.5</td>
+<td style="text-align:center">933.6</td>
+<td style="text-align:center">15801</td>
+<td style="text-align:center">1007.7</td>
+<td style="text-align:center">957.5</td>
+</tr>
+<tr>
+<td style="text-align:center">avr_O2</td>
+<td style="text-align:center">830.2</td>
+<td style="text-align:center">945.3</td>
+<td style="text-align:center">16029.3</td>
+<td style="text-align:center">476.4</td>
+<td style="text-align:center">442.6</td>
+</tr>
+</tbody>
+</table>
+<h2 id="附-2：测试代码"><a href="#附-2：测试代码" class="headerlink" title="附 2：测试代码"></a>附 2：测试代码</h2>
+<h3 id="输入效率测试-1"><a href="#输入效率测试-1" class="headerlink" title="输入效率测试"></a>输入效率测试</h3>
+<p><code>IOtest.cpp</code>：</p>
+<pre><code><figure class="highlight cpp"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> il inline</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> maxn = <span class="number">1e7</span> + <span class="number">5</span>, N = <span class="number">1e7</span>;</span><br><span class="line"><span class="keyword">int</span> a[maxn];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">gen</span><span class="params">()</span> </span>{</span><br><span class="line">    freopen(<span class="string">"io.in"</span>, <span class="string">"w"</span>, <span class="built_in">stdout</span>);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= N; ++i) <span class="built_in">printf</span>(<span class="string">"%d\n"</span>, i);</span><br><span class="line">    fclose(<span class="built_in">stdout</span>);</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">read1</span><span class="params">()</span> </span>{</span><br><span class="line">    <span class="keyword">char</span> c = getchar();</span><br><span class="line">    <span class="keyword">int</span> n = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> (!<span class="built_in">isdigit</span>(c)) c = getchar();</span><br><span class="line">    <span class="keyword">while</span> (<span class="built_in">isdigit</span>(c)) n = n * <span class="number">10</span> + c - <span class="string">'0'</span>, c = getchar();</span><br><span class="line">    <span class="keyword">return</span> n;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">clock_t</span> <span class="title">getcharread</span><span class="params">()</span> </span>{</span><br><span class="line">    <span class="keyword">clock_t</span> st = clock();</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= N; i++) a[i] = read1();</span><br><span class="line">    <span class="keyword">clock_t</span> ed = clock();</span><br><span class="line">    <span class="keyword">return</span> ed - st;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">clock_t</span> <span class="title">scanfread</span><span class="params">()</span> </span>{</span><br><span class="line">    <span class="keyword">clock_t</span> st = clock();</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= N; i++) <span class="built_in">scanf</span>(<span class="string">"%d"</span>, a + i);</span><br><span class="line">    <span class="keyword">clock_t</span> ed = clock();</span><br><span class="line">    <span class="keyword">return</span> ed - st;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">clock_t</span> <span class="title">cinread</span><span class="params">()</span> </span>{</span><br><span class="line">    <span class="keyword">clock_t</span> st = clock();</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= N; i++) <span class="built_in">std</span>::<span class="built_in">cin</span> &gt;&gt; a[i];</span><br><span class="line">    <span class="keyword">clock_t</span> ed = clock();</span><br><span class="line">    <span class="keyword">return</span> ed - st;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">clock_t</span> <span class="title">cinread2</span><span class="params">()</span> </span>{</span><br><span class="line">    <span class="built_in">std</span>::ios::sync_with_stdio(<span class="literal">false</span>);</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cin</span>.tie(<span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">clock_t</span> st = clock();</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= N; i++) <span class="built_in">std</span>::<span class="built_in">cin</span> &gt;&gt; a[i];</span><br><span class="line">    <span class="keyword">clock_t</span> ed = clock();</span><br><span class="line">    <span class="keyword">return</span> ed - st;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> fastIO {</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> maxc = <span class="number">1</span> &lt;&lt; <span class="number">26</span>;</span><br><span class="line"><span class="keyword">char</span> ibuf[maxc], *__p1 = ibuf, *__p2 = ibuf;</span><br><span class="line"><span class="function">il <span class="keyword">char</span> <span class="title">getchar</span><span class="params">()</span> </span>{<span class="keyword">return</span> __p1 == __p2 &amp;&amp; (__p2 = (__p1 = ibuf) + fread(ibuf, <span class="number">1</span>, maxc, <span class="built_in">stdin</span>), __p1 == __p2) ? EOF : *__p1++;}</span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="keyword">void</span> <span class="title">read</span><span class="params">(T &amp;n)</span> </span>{</span><br><span class="line">    <span class="keyword">int</span> x = <span class="number">0</span>; n = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">char</span> c = getchar();</span><br><span class="line">    <span class="keyword">while</span> (!<span class="built_in">isdigit</span>(c))</span><br><span class="line">        x |= (c == <span class="string">'-'</span>), c = getchar();</span><br><span class="line">    <span class="keyword">while</span> (<span class="built_in">isdigit</span>(c))</span><br><span class="line">        n = n * <span class="number">10</span> + c - <span class="string">'0'</span>, c = getchar();</span><br><span class="line">    n = x ? -n : n;</span><br><span class="line">}</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">clock_t</span> <span class="title">freadread</span><span class="params">()</span> </span>{</span><br><span class="line">    <span class="keyword">using</span> <span class="keyword">namespace</span> fastIO;</span><br><span class="line">    <span class="keyword">clock_t</span> st = clock();</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= N; i++) read(a[i]);</span><br><span class="line">    <span class="keyword">clock_t</span> ed = clock();</span><br><span class="line">    <span class="keyword">return</span> ed - st;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">flush</span><span class="params">()</span> </span>{</span><br><span class="line">    fclose(<span class="built_in">stdin</span>);</span><br><span class="line">    freopen(<span class="string">"io.in"</span>, <span class="string">"r"</span>, <span class="built_in">stdin</span>);</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>{</span><br><span class="line">    freopen(<span class="string">"iotmp.txt"</span>, <span class="string">"w"</span>, <span class="built_in">stdout</span>);</span><br><span class="line">    flush(), <span class="built_in">printf</span>(<span class="string">"%ld\t"</span>, scanfread());</span><br><span class="line">    flush(), <span class="built_in">printf</span>(<span class="string">"%ld\t"</span>, cinread());</span><br><span class="line">    flush(), <span class="built_in">printf</span>(<span class="string">"%ld\t"</span>, cinread2());</span><br><span class="line">    flush(), <span class="built_in">printf</span>(<span class="string">"%ld\t"</span>, getcharread());</span><br><span class="line">    flush(), <span class="built_in">printf</span>(<span class="string">"%ld\n"</span>, freadread());</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure></code></pre>
+<p><code>IOtest2.cpp</code>：</p>
+<pre><code><figure class="highlight cpp"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>{</span><br><span class="line">    freopen(<span class="string">"iotest.csv"</span>, <span class="string">"w"</span>, <span class="built_in">stdout</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"case,scanf,cin,cin2,getchar,fread\n"</span>);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= <span class="number">10</span>; ++i) {</span><br><span class="line">        system(<span class="string">"IOtest.exe"</span>);</span><br><span class="line">        freopen(<span class="string">"iotmp.txt"</span>, <span class="string">"r"</span>, <span class="built_in">stdin</span>);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"%d,"</span>, i);</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">1</span>, tmp; j &lt;= <span class="number">5</span>; ++j) {</span><br><span class="line">            <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;tmp);</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"%d%c"</span>, tmp, j == <span class="number">5</span> ? <span class="string">'\n'</span> : <span class="string">','</span>);</span><br><span class="line">        }</span><br><span class="line">        fclose(<span class="built_in">stdin</span>);</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure></code></pre>
+<h3 id="输出效率测试-1"><a href="#输出效率测试-1" class="headerlink" title="输出效率测试"></a>输出效率测试</h3>
+<p><code>IOtest.cpp</code>：</p>
+<pre><code><figure class="highlight cpp"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> il inline</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> maxn = <span class="number">1e7</span> + <span class="number">5</span>, N = <span class="number">1e7</span>;</span><br><span class="line"><span class="keyword">int</span> a[maxn];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">gen</span><span class="params">()</span> </span>{</span><br><span class="line">    freopen(<span class="string">"io.in"</span>, <span class="string">"w"</span>, <span class="built_in">stdout</span>);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= N; ++i) <span class="built_in">printf</span>(<span class="string">"%d\n"</span>, i);</span><br><span class="line">    fclose(<span class="built_in">stdout</span>);</span><br><span class="line">}</span><br><span class="line"><span class="function"><span class="keyword">clock_t</span> <span class="title">printf</span><span class="params">()</span> </span>{</span><br><span class="line">    freopen(<span class="string">"io.out"</span>, <span class="string">"w"</span>, <span class="built_in">stdout</span>);</span><br><span class="line">    <span class="keyword">clock_t</span> st = clock();</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= N; ++i) <span class="built_in">printf</span>(<span class="string">"%d\n"</span>, i);</span><br><span class="line">    <span class="keyword">clock_t</span> ed = clock();</span><br><span class="line">    fclose(<span class="built_in">stdout</span>);</span><br><span class="line">    <span class="keyword">return</span> ed - st;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">clock_t</span> <span class="title">cout</span><span class="params">()</span> </span>{</span><br><span class="line">    freopen(<span class="string">"io.out"</span>, <span class="string">"w"</span>, <span class="built_in">stdout</span>);</span><br><span class="line">    <span class="keyword">clock_t</span> st = clock();</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= N; ++i) <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; i &lt;&lt; <span class="string">'\n'</span>;</span><br><span class="line">    <span class="keyword">clock_t</span> ed = clock();</span><br><span class="line">    fclose(<span class="built_in">stdout</span>);</span><br><span class="line">    <span class="keyword">return</span> ed - st;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">clock_t</span> <span class="title">cout_endl</span><span class="params">()</span> </span>{</span><br><span class="line">    freopen(<span class="string">"io.out"</span>, <span class="string">"w"</span>, <span class="built_in">stdout</span>);</span><br><span class="line">    <span class="keyword">clock_t</span> st = clock();</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= N; ++i) <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; i &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">    <span class="keyword">clock_t</span> ed = clock();</span><br><span class="line">    fclose(<span class="built_in">stdout</span>);</span><br><span class="line">    <span class="keyword">return</span> ed - st;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print</span><span class="params">(<span class="keyword">int</span> x)</span> </span>{</span><br><span class="line">    <span class="keyword">if</span> (x &gt;= <span class="number">10</span>) print(x / <span class="number">10</span>);</span><br><span class="line">    <span class="built_in">putchar</span>(x % <span class="number">10</span> + <span class="string">'0'</span>);</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">clock_t</span> <span class="title">putchar</span><span class="params">()</span> </span>{</span><br><span class="line">    freopen(<span class="string">"io.out"</span>, <span class="string">"w"</span>, <span class="built_in">stdout</span>);</span><br><span class="line">    <span class="keyword">clock_t</span> st = clock();</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= N; ++i) print(i), <span class="built_in">putchar</span>(<span class="string">'\n'</span>);</span><br><span class="line">    <span class="keyword">clock_t</span> ed = clock();</span><br><span class="line">    fclose(<span class="built_in">stdout</span>);</span><br><span class="line">    <span class="keyword">return</span> ed - st;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> fastIO {</span><br><span class="line"><span class="keyword">char</span> obuf[<span class="number">1</span> &lt;&lt; <span class="number">26</span>], *__pO = obuf;</span><br><span class="line"><span class="function">il <span class="keyword">void</span> <span class="title">putchar</span><span class="params">(<span class="keyword">char</span> c)</span> </span>{*__pO++ = c;}</span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="keyword">void</span> <span class="title">print</span><span class="params">(<span class="keyword">const</span> T &amp;x)</span> </span>{</span><br><span class="line">    <span class="keyword">if</span> (x &gt; <span class="number">9</span>) print(x / <span class="number">10</span>);</span><br><span class="line">    <span class="built_in">putchar</span>(x % <span class="number">10</span> + <span class="string">'0'</span>);</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">}</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">output</span><span class="params">()</span> </span>{fwrite(obuf, __pO - obuf, <span class="number">1</span>, <span class="built_in">stdout</span>);}</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">clock_t</span> <span class="title">fastio</span><span class="params">()</span> </span>{</span><br><span class="line">    freopen(<span class="string">"io.out"</span>, <span class="string">"w"</span>, <span class="built_in">stdout</span>);</span><br><span class="line">    freopen(<span class="string">"io.out"</span>, <span class="string">"w"</span>, <span class="built_in">stdout</span>);</span><br><span class="line">    <span class="keyword">using</span> <span class="keyword">namespace</span> fastIO;</span><br><span class="line">    <span class="keyword">clock_t</span> st = clock();</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= N; ++i) print(i), <span class="built_in">putchar</span>(<span class="string">'\n'</span>);</span><br><span class="line">    output();</span><br><span class="line">    <span class="keyword">clock_t</span> ed = clock();</span><br><span class="line">    fclose(<span class="built_in">stdout</span>);</span><br><span class="line">    <span class="keyword">return</span> ed - st;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>{</span><br><span class="line">    <span class="keyword">clock_t</span> a[<span class="number">6</span>];</span><br><span class="line">    a[<span class="number">1</span>] = <span class="built_in">printf</span>();</span><br><span class="line">    a[<span class="number">2</span>] = <span class="built_in">cout</span>();</span><br><span class="line">    a[<span class="number">3</span>] = cout_endl();</span><br><span class="line">    a[<span class="number">4</span>] = <span class="built_in">putchar</span>();</span><br><span class="line">    a[<span class="number">5</span>] = fastio();</span><br><span class="line">    freopen(<span class="string">"iotmp.txt"</span>, <span class="string">"w"</span>, <span class="built_in">stdout</span>);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= <span class="number">5</span>; ++i) <span class="built_in">printf</span>(<span class="string">"%d\n"</span>, a[i]);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure></code></pre>
+<p><code>IOtest2.cpp</code></p>
+<pre><code><figure class="highlight cpp"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>{</span><br><span class="line">    freopen(<span class="string">"iotest.csv"</span>, <span class="string">"w"</span>, <span class="built_in">stdout</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"case,printf,cout,cout_endl,putchar,fwrite\n"</span>);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= <span class="number">10</span>; ++i) {</span><br><span class="line">        system(<span class="string">"IOtest.exe"</span>);</span><br><span class="line">        freopen(<span class="string">"iotmp.txt"</span>, <span class="string">"r"</span>, <span class="built_in">stdin</span>);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"%d,"</span>, i);</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">1</span>, tmp; j &lt;= <span class="number">5</span>; ++j) {</span><br><span class="line">            <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;tmp);</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"%d%c"</span>, tmp, j == <span class="number">5</span> ? <span class="string">'\n'</span> : <span class="string">','</span>);</span><br><span class="line">        }</span><br><span class="line">        fclose(<span class="built_in">stdin</span>);</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure></code></pre>
+
+  
+  
+    
+    <div class='footer'>
+      
+      
+      
+        <div class='copyright'>
+          <blockquote>
+            
+              
+                博客内容遵循 署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0) 协议
+              
+            
+              
+                <p>本文永久链接是：<a href=https://old.blog.imyangty.com/note-iotest/>https://old.blog.imyangty.com/note-iotest/</a></p>
+              
+            
+          </blockquote>
+        </div>
+      
+      
+    </div>
+  
+  
+    
+
+
+  <div class='article-meta' id="bottom">
+    <div class='new-meta-box'>
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2022-03-23T12:17:42+08:00">
+  <a class='notlink'>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：2022年3月23日</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/OI/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>OI</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/note/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>笔记</p></a></div>
+
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer noopener"
+          
+          target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://old.blog.imyangty.com/note-iotest/&title=几种 IO 方式效率的实验 - YangTY's Blog&summary="
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qq.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qq.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-qzone" title="" rel="external nofollow noopener noreferrer noopener"
+          
+          target="_blank" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=https://old.blog.imyangty.com/note-iotest/&title=几种 IO 方式效率的实验 - YangTY's Blog&summary="
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qzone.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qzone.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer noopener"
+          
+          target="_blank" href="http://service.weibo.com/share/share.php?url=https://old.blog.imyangty.com/note-iotest/&title=几种 IO 方式效率的实验 - YangTY's Blog&summary="
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/weibo.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/weibo.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
+          
+        </a>
+      
+    
+      
+    
+      
+        <a class="-mob-share-telegram" title="" rel="external nofollow noopener noreferrer noopener"
+          
+            target="_blank" href="https://t.me/share/url?url=https://old.blog.imyangty.com/note-iotest/&text=几种 IO 方式效率的实验 - YangTY's Blog"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/telegram.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/telegram.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
+          
+        </a>
+      
+    
+  </div>
+</div>
+
+
+
+        
+      
+    </div>
+  </div>
+
+
+  
+  
+
+  
+    <div class="prev-next">
+      
+        <a class='prev' href='/sol-luogu-p4284/'>
+          <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>P4284 [SHOI2014]概率充电器</p>
+          <p class='content'>Description
+一棵树，节点为电子元件，边为导线。每个电子元件有 
+p_i
+
+
+
+
+
+ 
+ 
+
+ 的概率自己被充电，每个导线有 
+q_i
+
+
+
+
+
+ 
+ 
+
+ 的概率连通。一个元件被充电...</p>
+        </a>
+      
+      
+        <a class='next' href='/sol-luogu-p3305/'>
+          <p class='title'>P3305 [SDOI2013]费用流<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+          <p class='content'>Description
+给定一张网络，Alice 先选择一种最大流方案，Bob 给每条边定单位费用，要求每条边单位费用之和为 
+P
+
+
+
+
+ 
+
+。
+Alice 希望费用最小，Bob 希望费用最...</p>
+        </a>
+      
+    </div>
+  
+</article>
+
+
+  
+
+  <article class="post white-box reveal blur" id="comments">
+    <p ct><i class='fas fa-comments'></i> 评论</p>
+    
+    <div id="gitalk-container"></div>
+
+  </article>
+
+
+
+
+
+
+</div>
+<aside class='l_side'>
+  
+  
+    
+    
+
+<section class="widget blogger blur desktop mobile">
+  <div class='content'>
+    
+      
+        <a class='avatar flat-box rectangle' href='/about/'>
+          <img no-lazy src='https://q1.qlogo.cn/g?b=qq&nk=375836877&s=5'/>
+        </a>
+      
+    
+    
+      <div class='text'>
+        
+          <h2>YangTY's Blog</h2>
+        
+        
+          一个菜鸡 OIer 的博客
+        
+        
+          <p><span id="jinrishici-sentence">YangTY's Blog</span></p>
+          <script src="https://sdk.jinrishici.com/v2/browser/jinrishici.js" charset="utf-8"></script>
+        
+      </div>
+    
+    
+      <div class="social-wrapper">
+        
+          
+            <a href="mailto:375836877@qq.com"
+              class="social fas fa-envelope flat-btn"
+              target="_blank"
+              rel="external nofollow noopener noreferrer">
+              
+            </a>
+          
+        
+          
+            <a href="https://github.com/Cgfyufsygsm/"
+              class="social fab fa-github flat-btn"
+              target="_blank"
+              rel="external nofollow noopener noreferrer">
+              
+            </a>
+          
+        
+      </div>
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+<section class="widget blur desktop">
+  
+  <header>
+    
+      <i class="fas fa-award fa-fw" aria-hidden="true"></i><span class='name'>站点信息</span>
+    
+  </header>
+
+
+  <div class='content'>
+    <div class="webinfo">
+      
+        <div class="webinfo-item">
+          <div>文章数目：</div>
+          <div>224 篇</div>
+        </div>
+      
+
+      
+        <div class="webinfo-item">
+          <div>已运行时间：</div>
+          <div id="webinfo-runtime-count" publish_date="03/24/2020 21:34:09"></div>
+        </div>
+        <script>
+          var BirthDay = new Date(new Date('2020/01/01'));
+          var today = new Date();
+          var timeold = (today.getTime() - BirthDay.getTime());
+          var daysold = Math.floor(timeold / (24 * 60 * 60 * 1000));
+          document.getElementById('webinfo-runtime-count').innerHTML = daysold + ' 天';
+        </script>
+      
+
+
+      
+
+      
+        <div class="webinfo-item">
+          <div>本站访客数：</div>
+          
+          <div><span id="lc-uv"><span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span></span> 人</div>
+          
+        </div>
+      
+
+      
+        <div class="webinfo-item">
+          <div>本站总访问量：</div>
+          
+          <div><span id="lc-sv"><span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span></span> 次</div>
+          
+        </div>
+      
+
+      
+        <div class="webinfo-item">
+          <div>最后活动时间：</div>
+          
+            <div id="last-update" style="display: none;">Thu Apr 14 2022 17:02:26 GMT+0800 (中国标准时间)</div>
+            <div id="last-update-show">2022-04-14 日</div>
+          
+        </div>
+        
+        <script>
+          function timeago(dateTimeStamp) {
+              var minute = 1000 * 60; //把分，时，天，周，半个月，一个月用毫秒表示
+              var hour = minute * 60;
+              var day = hour * 24;
+              var week = day * 7;
+              var month = day * 30;
+              var now = new Date().getTime(); //获取当前时间毫秒
+              var diffValue = now - dateTimeStamp; //时间差
+              if (diffValue < 0) {
+                  return;
+              }
+              var minC = diffValue / minute; //计算时间差的分，时，天，周，月
+              var hourC = diffValue / hour;
+              var dayC = diffValue / day;
+              var weekC = diffValue / week;
+              var monthC = diffValue / month;
+              if (monthC >= 1 && monthC <= 3) {
+                  result = " " + parseInt(monthC) + " 月前"
+              } else if (weekC >= 1 && weekC <= 3) {
+                  result = " " + parseInt(weekC) + " 周前"
+              } else if (dayC >= 1 && dayC <= 6) {
+                  result = " " + parseInt(dayC) + " 天前"
+              } else if (hourC >= 1 && hourC <= 23) {
+                  result = " " + parseInt(hourC) + " 小时前"
+              } else if (minC >= 1 && minC <= 59) {
+                  result = " " + parseInt(minC) + " 分钟前"
+              } else if (diffValue >= 0 && diffValue <= minute) {
+                  result = "刚刚"
+              } else {
+                  var datetime = new Date();
+                  datetime.setTime(dateTimeStamp);
+                  var Nyear = datetime.getFullYear();
+                  var Nmonth = datetime.getMonth() + 1 < 10 ? "0" + (datetime.getMonth() + 1) : datetime.getMonth() + 1;
+                  var Ndate = datetime.getDate() < 10 ? "0" + datetime.getDate() : datetime.getDate();
+                  var Nhour = datetime.getHours() < 10 ? "0" + datetime.getHours() : datetime.getHours();
+                  var Nminute = datetime.getMinutes() < 10 ? "0" + datetime.getMinutes() : datetime.getMinutes();
+                  var Nsecond = datetime.getSeconds() < 10 ? "0" + datetime.getSeconds() : datetime.getSeconds();
+                  result = Nyear + "-" + Nmonth + "-" + Ndate
+              }
+              return result;
+          }
+          var lastUpDate = document.getElementById('last-update').innerHTML;
+          try {
+            document.getElementById('last-update-show').innerHTML = timeago(new Date(lastUpDate));
+          } catch (error) {
+            document.getElementById('last-update-show').innerHTML = '2022-04-14 日';
+          }
+        </script>
+        
+      
+    </div>
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+
+
+  <section class="widget toc-wrapper blur desktop mobile" id="toc-div" >
+    
+  <header>
+    
+      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>本文目录</span>
+    
+  </header>
+
+
+    <div class='content'>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BE%93%E5%85%A5%E6%95%88%E7%8E%87%E6%B5%8B%E8%AF%95"><span class="toc-text">输入效率测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BE%93%E5%87%BA%E6%95%88%E7%8E%87%E6%B5%8B%E8%AF%95"><span class="toc-text">输出效率测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%8E%E8%AE%B0"><span class="toc-text">后记</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%99%84-1%EF%BC%9A%E5%AE%8C%E6%95%B4%E6%B5%8B%E8%AF%95%E7%BB%93%E6%9E%9C"><span class="toc-text">附 1：完整测试结果</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%AC%E6%9C%BA-i5"><span class="toc-text">本机 i5</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AMD-R5-2600"><span class="toc-text">AMD R5 2600</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%99%9A%E6%8B%9F%E6%9C%BA-NOI-Linux-2-0"><span class="toc-text">虚拟机 NOI Linux 2.0</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%99%84-2%EF%BC%9A%E6%B5%8B%E8%AF%95%E4%BB%A3%E7%A0%81"><span class="toc-text">附 2：测试代码</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BE%93%E5%85%A5%E6%95%88%E7%8E%87%E6%B5%8B%E8%AF%95-1"><span class="toc-text">输入效率测试</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BE%93%E5%87%BA%E6%95%88%E7%8E%87%E6%B5%8B%E8%AF%95-1"><span class="toc-text">输出效率测试</span></a></li></ol></li></ol>
+    </div>
+  </section>
+
+
+  
+
+
+</aside>
+
+
+
+		  
+		  <!--此文件用来存放一些不方便取值的变量-->
+<!--思路大概是将值藏到重加载的区域内-->
+
+<script>
+  window.pdata={}
+  pdata.ispage=true;
+  pdata.postTitle="几种 IO 方式效率的实验";
+  pdata.commentPath="";
+  pdata.commentPlaceholder="";
+  // header 这里无论是否开启pjax都需要
+  var l_header=document.getElementById("l_header");
+  
+  l_header.classList.add("show");
+  
+  
+    // cover
+    var cover_wrapper=document.querySelector('.cover-wrapper');
+    
+    cover_wrapper.id="none";
+    cover_wrapper.style.display="none";
+    
+  
+</script>
+
+        </div>
+        
+  
+  <footer class="footer clearfix">
+    <br><br>
+    
+      
+        <div class="aplayer-container">
+          
+
+  
+    <meting-js
+      theme='#1BCDFC'
+      autoplay='false'
+      volume='0.7'
+      loop='all'
+      order='random'
+      fixed='false'
+      list-max-height='320px'
+      server='netease'
+      type='playlist'
+      id='7338185592'
+      list-folded='true'>
+    </meting-js>
+  
+
+
+        </div>
+      
+    
+      
+        <br>
+        <div class="social-wrapper">
+          
+            
+          
+            
+          
+            
+          
+        </div>
+      
+    
+      
+        <div>Blog content follows the [Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) License](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en)</div>
+      
+    
+      
+        
+          <div><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次</span> <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人</span>
+</div>
+        
+      
+    
+      
+        Use
+        <a href="https://github.com/volantis-x/hexo-theme-volantis/tree/4.3.1" target="_blank" class="codename">Volantis</a>
+        as theme
+      
+    
+      
+        <div class='copyright'>
+        Copyright (c) 2022 Taoyu Yang. All rights reserved.
+        </div>
+      
+    
+      
+        
+          <div><a href="https://icp.gov.moe/?keyword=20221031" target="_blank">萌ICP备20221031号</a></div>
+        
+      
+    
+  </footer>
+
+
+        <a id="s-top" class="fas fa-arrow-up fa-fw" href="javascript:void(0)"></a>
+      </div>
+    </div>
+    <div>
+      <script>
+/************这个文件存放不需要重载的全局变量和全局函数*********/
+window.volantis={};
+window.volantis.loadcss=document.getElementById("loadcss");
+/******************** Pjax ********************************/
+function VPjax(){
+	this.list=[] // 存放回调函数
+	this.start=()=>{
+	  for(var i=0;i<this.list.length;i++){
+		this.list[i].run();
+	  }
+	}
+	this.push=(fn,name)=>{
+		var f=new PjaxItem(fn,name);
+		this.list.push(f);
+	}
+	// 构造一个可以run的对象
+	function PjaxItem(fn,name){
+		// 函数名称
+		this.name = name || fn.name
+		// run方法
+		this.run=()=>{
+			fn()
+		}
+	}
+}
+volantis.pjax={}
+volantis.pjax.method={
+	complete: new VPjax(),
+	error: new VPjax(),
+	send: new VPjax()
+}
+volantis.pjax={
+	...volantis.pjax,
+	push: volantis.pjax.method.complete.push,
+	error: volantis.pjax.method.error.push,
+	send: volantis.pjax.method.send.push
+}
+/********************脚本懒加载函数********************************/
+// 已经加入了setTimeout
+function loadScript(src, cb) {
+	setTimeout(function() {
+		var HEAD = document.getElementsByTagName('head')[0] || document.documentElement;
+		var script = document.createElement('script');
+		script.setAttribute('type','text/javascript');
+		if (cb) script.onload = cb;
+		script.setAttribute('src', src);
+		HEAD.appendChild(script);
+	});
+}
+//https://github.com/filamentgroup/loadCSS
+var loadCSS = function( href, before, media, attributes ){
+	var doc = window.document;
+	var ss = doc.createElement( "link" );
+	var ref;
+	if( before ){
+		ref = before;
+	}
+	else {
+		var refs = ( doc.body || doc.getElementsByTagName( "head" )[ 0 ] ).childNodes;
+		ref = refs[ refs.length - 1];
+	}
+	var sheets = doc.styleSheets;
+	if( attributes ){
+		for( var attributeName in attributes ){
+			if( attributes.hasOwnProperty( attributeName ) ){
+				ss.setAttribute( attributeName, attributes[attributeName] );
+			}
+		}
+	}
+	ss.rel = "stylesheet";
+	ss.href = href;
+	ss.media = "only x";
+	function ready( cb ){
+		if( doc.body ){
+			return cb();
+		}
+		setTimeout(function(){
+			ready( cb );
+		});
+	}
+	ready( function(){
+		ref.parentNode.insertBefore( ss, ( before ? ref : ref.nextSibling ) );
+	});
+	var onloadcssdefined = function( cb ){
+		var resolvedHref = ss.href;
+		var i = sheets.length;
+		while( i-- ){
+			if( sheets[ i ].href === resolvedHref ){
+				return cb();
+			}
+		}
+		setTimeout(function() {
+			onloadcssdefined( cb );
+		});
+	};
+	function loadCB(){
+		if( ss.addEventListener ){
+			ss.removeEventListener( "load", loadCB );
+		}
+		ss.media = media || "all";
+	}
+	if( ss.addEventListener ){
+		ss.addEventListener( "load", loadCB);
+	}
+	ss.onloadcssdefined = onloadcssdefined;
+	onloadcssdefined( loadCB );
+	return ss;
+};
+</script>
+<script>
+  
+  loadCSS("https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.14/css/all.min.css", window.volantis.loadcss);
+  
+  
+  
+  
+</script>
+<!-- required -->
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5/dist/jquery.min.js"></script>
+
+<script>
+  function pjax_fancybox() {
+    $(".md .gallery").find("img").each(function () { //渲染 fancybox
+      var element = document.createElement("a"); // a 标签
+      $(element).attr("class", "fancybox");
+      $(element).attr("pjax-fancybox", "");  // 过滤 pjax
+      $(element).attr("href", $(this).attr("src"));
+      if ($(this).attr("data-original")) {
+        $(element).attr("href", $(this).attr("data-original"));
+      }
+      $(element).attr("data-fancybox", "images");
+      var caption = "";   // 描述信息
+      if ($(this).attr('alt')) {  // 判断当前页面是否存在描述信息
+        $(element).attr('data-caption', $(this).attr('alt'));
+        caption = $(this).attr('alt');
+      }
+      var div = document.createElement("div");
+      $(div).addClass("fancybox");
+      $(this).wrap(div); // 最外层套 div ，其实主要作用还是 class 样式
+      var span = document.createElement("span");
+      $(span).addClass("image-caption");
+      $(span).text(caption); // 加描述
+      $(this).after(span);  // 再套一层描述
+      $(this).wrap(element);  // 最后套 a 标签
+    })
+    $(".md .gallery").find("img").fancybox({
+      selector: '[data-fancybox="images"]',
+      hash: false,
+      loop: false,
+      closeClick: true,
+      helpers: {
+        overlay: {closeClick: true}
+      },
+      buttons: [
+        "zoom",
+        "close"
+      ]
+    });
+  };
+  function SCload_fancybox() {
+    if ($(".md .gallery").find("img").length == 0) return;
+    loadCSS("https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css", document.getElementById("loadcss"));
+    loadScript('https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js', pjax_fancybox)
+  };
+  $(function () {
+    SCload_fancybox();
+  });
+  function Pjax_SCload_fancybox(){
+	if (typeof $.fancybox == "undefined") {
+	 SCload_fancybox();
+    } else {
+	 pjax_fancybox();
+    }
+  }
+  volantis.pjax.push(Pjax_SCload_fancybox)
+  volantis.pjax.send(()=>{
+      if (typeof $.fancybox != "undefined") {
+        $.fancybox.close();    // 关闭弹窗
+      }
+  },'fancybox')
+</script>
+
+
+<!-- internal -->
+
+  
+  
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/jquery-backstretch@2.1.18/jquery.backstretch.min.js"></script>
+
+    <script type="text/javascript">
+        var imgs=["https://cdn.jsdelivr.net/gh/volantis-x/cdn-wallpaper-minimalist/2020/006.jpg"];
+        if ('true' == 'true') {
+          function shuffle(arr){
+            /*From countercurrent-time*/
+            var n = arr.length;
+            while(n--) {
+              var index = Math.floor(Math.random() * n);
+              var temp = arr[index];
+              arr[index] = arr[n];
+              arr[n] = temp;
+            }
+          }
+          shuffle(imgs);
+        }
+	  function Pjax_backstretch(){
+        
+          $.backstretch(
+            imgs,
+          {
+            duration: "10000",
+            fade: "1500"
+          });
+        
+	  }
+	  loadScript("https://cdn.jsdelivr.net/npm/jquery-backstretch@2.1.18/jquery.backstretch.min.js",Pjax_backstretch)
+    </script>
+  
+
+
+
+  
+  
+
+  <div id="rightmenu-wrapper">
+    <ul class="list-v rightmenu" id="rightmenu-content">
+      <li class='option'>
+        <a class='vlts-menu opt fix-cursor-default' id='menu-copy-text' onclick="document.execCommand('copy')"><i class='fa fa-copy fa-fw'></i>Copy Text</a>
+        <hr id='hr-text'>
+        <a class='vlts-menu opt fix-cursor-default' id='menu-copy-href'><i class='fa fa-link fa-fw'></i>Copy Link</a>
+        <a class='vlts-menu opt fix-cursor-default' id='menu-open-href'><i class='fa fa-external-link-square-alt fa-fw'></i>Open Link in New Tab</a>
+        <hr id='hr-href'>
+        <a class='vlts-menu opt fix-cursor-default' id='menu-copy-src'><i class='fa fa-image fa-fw'></i>Copy Image Link</a>
+        <hr id='hr-src'>
+      </li>
+      
+        <li class='navigation'>
+          <a class='nav icon-only fix-cursor-default' onclick='history.back()'><i class='fa fa-arrow-left fa-fw'></i></a>
+          <a class='nav icon-only fix-cursor-default' onclick='history.forward()'><i class='fa fa-arrow-right fa-fw'></i></a>
+          <a class='nav icon-only fix-cursor-default' onclick='window.location.reload()'><i class='fa fa-redo fa-fw'></i></a>
+          <a class='nav icon-only fix-cursor-default' href='/'><i class='fa fa-home fa-fw'></i></a>
+        </li>
+      
+      <hr>
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+          <hr>
+        
+      
+        
+      
+        
+      
+        
+          <hr>
+        
+      
+        
+          
+    <li>
+      <a class='vlts-menu fix-cursor-default ' 
+        
+        
+        
+          onclick="document.execCommand('print')"
+        
+        >
+        <i class='fa fa-print fa-fw'></i> 打印页面
+      </a>
+    </li>
+  
+        
+      
+        
+          <hr>
+        
+      
+        
+          
+    <li>
+      <a class='vlts-menu fix-cursor-default toggle-mode-btn' 
+        
+        
+        
+        >
+        <i class='fas fa-moon fa-fw'></i> Dark mode
+      </a>
+    </li>
+  
+        
+      
+        
+          <hr>
+        
+      
+        
+          <li class='music name'>
+            <p class='nav music-title fix-cursor-default'></p>
+          </li>
+          <li class='music ctrl'>
+            <a class='nav icon-only backward fix-cursor-default' onclick='aplayerBackward()'><i class='fa fa-step-backward fa-fw'></i></a>
+            <a class='nav icon-only toggle fix-cursor-default' onclick='aplayerToggle()'><i class='fa fa-play fa-fw'></i></a>
+            <a class='nav icon-only forward fix-cursor-default' onclick='aplayerForward()'><i class='fa fa-step-forward fa-fw'></i></a>
+          </li>
+          <li class='music volume'>
+            <a class='nav volume'>
+              <div class="aplayer-volume-bar-wrap">
+                <div class="aplayer-volume-bar fix-cursor-pointer">
+                  <div class="aplayer-volume"></div>
+                  <i class='left fa fa-volume-off fa-fw'></i>
+                  <i class='right fa fa-volume-up fa-fw'></i>
+                </div>
+              </div>
+            </a>
+          </li>
+        
+      
+    </ul>
+  </div>
+
+  <script>
+    window.document.oncontextmenu = function (event) {
+      if (event.ctrlKey) return true;
+      if (/Android|webOS|BlackBerry/i.test(navigator.userAgent)) return true;
+      return popMenu(event);
+    };
+    document.addEventListener("click", function (event) {
+      var mymenu = document.getElementById('rightmenu-wrapper');
+      mymenu.style.display = "none";
+    });
+    function popMenu(event) {
+      var mymenu = document.getElementById('rightmenu-wrapper');
+      var menuContent = document.getElementById('rightmenu-content');
+      var screenWidth = document.documentElement.clientWidth || document.body.clientWidth;
+      var screenHeight = document.documentElement.clientHeight || document.body.clientHeight;
+      mymenu.style.left = event.clientX + "px"; // 获取鼠标位置
+      mymenu.style.top = event.clientY + "px";
+      mymenu.style.display = 'block';
+      if (event.clientX * 2 > screenWidth) {
+        menuContent.classList.add('left');
+      } else {
+        menuContent.classList.remove('left');
+      }
+      if (event.clientY * 2 > screenHeight) {
+        menuContent.classList.add('top');
+      } else {
+        menuContent.classList.remove('top');
+      }
+
+      let hrText = document.getElementById('hr-text');
+      let hrSrc = document.getElementById('hr-src');
+      let hrHref = document.getElementById('hr-href');
+
+      // 选中图片
+      let copySrc = document.getElementById('menu-copy-src');
+      if (copySrc != undefined) {
+        if (event.target.currentSrc) {
+          copySrc.style.display = 'block';
+          copySrc.addEventListener("click", function (e) {
+            copyString(event.target.currentSrc);
+          },{once: true});
+          hrSrc.style.display = 'block';
+        } else {
+          copySrc.style.display = 'none';
+          hrSrc.style.display = 'none';
+        }
+      }
+
+      // 选中按钮
+      // 判断是不是按钮
+      let href = '';
+      if (event.path) {
+        for (i = 0; i < event.path.length; i++) {
+          if (event.path[i].href != undefined && event.path[i].href.length > 0) {
+            href = event.path[i].href;
+          }
+        }
+      }
+
+      let copyText = document.getElementById('menu-copy-text');
+      copyText.style.display = 'none';
+      hrText.style.display = 'none';
+      if (href.length == 0) {
+        // 选中文本
+        if (window.getSelection().toString()) {
+          if ('' == 'true') {
+            copyText.style.display = 'block';
+            hrText.style.display = 'block';
+          }
+        }
+      }
+
+      // 在新标签页打开
+      let openHref = document.getElementById('menu-open-href');
+      if (openHref != undefined) {
+        if (href.length > 0) {
+          openHref.style.display = 'block';
+          openHref.addEventListener("click", function (e) {
+            window.open(href);
+          },{once: true});
+          hrHref.style.display = 'block';
+        } else {
+          openHref.style.display = 'none';
+          hrHref.style.display = 'none';
+        }
+      }
+      // 复制链接
+      let copyHref = document.getElementById('menu-copy-href');
+      if (copyHref != undefined) {
+        if (href.length > 0) {
+          copyHref.style.display = 'block';
+          copyHref.addEventListener("click", function (e) {
+            copyString(href);
+          },{once: true});
+        } else {
+          copyHref.style.display = 'none';
+        }
+      }
+      // 有音乐播放器 see: layout/_third-party/aplayer/script.ejs
+      
+      if(volantis.APlayerLoaded){ // APlayer加载完成？
+        // 如果有aplayer，初始化一下
+        checkAPlayer();
+      }
+      
+      return false; // 该行代码确保系统自带的右键菜单不会被调出
+    }
+    function hideMenu() {
+      document.getElementById('rightmenu-wrapper').style.display = 'none';
+    }
+    function copyString(str) {
+      const input = document.createElement('input');
+      input.setAttribute('readonly', 'readonly');
+      document.body.appendChild(input);
+      input.setAttribute('value', str);
+      input.select();
+      document.execCommand('copy');
+      document.body.removeChild(input);
+    }
+    document.execCommand('click');
+  </script>
+
+
+
+
+<script>
+  function loadIssuesJS() {
+    if ($(".md").find(".issues-api").length == 0) return;
+	
+	  loadScript('/js/issues.js');
+	
+  };
+  $(function () {
+    loadIssuesJS();
+  });
+  volantis.pjax.push(()=>{
+	if (typeof IssuesAPI == "undefined") {
+	  loadIssuesJS();
+	}
+  },"IssuesJS")
+</script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.1.0/dist/lazyload.min.js"></script>
+<script>
+  // https://www.npmjs.com/package/vanilla-lazyload
+  // Set the options globally
+  // to make LazyLoad self-initialize
+  window.lazyLoadOptions = {
+    elements_selector: ".lazyload",
+    threshold: 0
+  };
+  // Listen to the initialization event
+  // and get the instance of LazyLoad
+  window.addEventListener(
+    "LazyLoad::Initialized",
+    function (event) {
+      window.lazyLoadInstance = event.detail.instance;
+    },
+    false
+  );
+  document.addEventListener('DOMContentLoaded', function () {
+    lazyLoadInstance.update();
+  });
+  document.addEventListener('pjax:complete', function () {
+    lazyLoadInstance.update();
+  });
+</script>
+
+
+
+
+  
+
+<script>
+  window.FPConfig = {
+	delay: 0,
+	ignoreKeywords: [],
+	maxRPS: 5,
+	hoverDelay: 25
+  };
+</script>
+<script defer src="https://cdn.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"></script>
+
+
+
+
+
+
+
+
+
+  <script>
+  let APlayerController = new Object();
+  APlayerController.id = '7338185592';  // 设定全局音乐播放ID
+  APlayerController.volume = '0.7';
+  loadCSS("https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.css", window.volantis.loadcss);
+  // APlayer 需要在  MetingJS 之前加载
+  loadScript("https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.js")
+  window.volantis.APlayerLoaded=0 // APlayer加载完成状态
+  var checkAPlayer = setInterval(function () {
+    if (!window.APlayer) return // APlayer加载完成？
+	  if ($("#safearea").css("display")!="block") return // 文章内容加载完成？ see: source/css/first.styl
+    clearInterval(checkAPlayer)
+	  if (!window.volantis.APlayerLoaded&&!window.MetingJSElement){ // APlayer只能加载一次
+      window.volantis.APlayerLoaded=1 // APlayer加载完成
+      loadScript("https://cdn.jsdelivr.net/npm/meting@2.0/dist/Meting.min.js") // 加载 MetingJS
+	  }
+  }, 2500) // 按照网速调节差分2.5s
+  // rightmenu see: layout/_partial/rightmenu.ejs
+
+  
+    loadScript("/js/aplayer.js")
+  
+
+</script>
+
+
+
+
+  <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<script type="text/javascript">
+  function pjax_gitalk() {
+    if(!document.querySelectorAll("#gitalk-container")[0])return;
+    let path = pdata.commentPath;
+    if (path.length == 0) {
+      let defaultPath = '';
+      path = defaultPath || decodeURI(window.location.pathname);
+    }
+    if (document.getElementById('gitalk-container') != null) {
+      var gitalk = new Gitalk(Object.assign({"clientID":"1a08e8cdb8088805c835","clientSecret":"44913bdb173e9c2830f6dc913b79ae040a4b3424","repo":"cgfyufsygsm.github.io","owner":"Cgfyufsygsm","admin":"Cgfyufsygsm","path":null}, {
+	  id: path,
+	  distractionFreeMode: false  // Facebook-like distraction free mode
+    }));
+      gitalk.render('gitalk-container');
+    }
+  }
+  $(function () {
+    pjax_gitalk();
+  });
+  volantis.pjax.push(pjax_gitalk);
+</script>
+
+
+
+
+
+
+  
+<script src="/js/app.js"></script>
+
+
+
+<!-- optional -->
+
+  <script>
+const SearchServiceimagePath="https://cdn.jsdelivr.net/gh/volantis-x/cdn-volantis@master/img/";
+const ROOT =  ("/" || "/").endsWith('/') ? ("/" || "/") : ("//" || "/" );
+
+$('.input.u-search-input').one('focus',function(){
+	
+		loadScript('/js/search/hexo.js',setSearchService);
+	
+})
+
+function listenSearch(){
+  
+    customSearch = new HexoSearch({
+      imagePath: SearchServiceimagePath
+    });
+  
+}
+function setSearchService() {
+	listenSearch();
+	
+}
+</script>
+
+
+
+
+
+
+
+
+
+
+
+  <script defer>
+
+  const LCCounter = {
+    app_id: 'u9j57bwJod4EDmXWdxrwuqQT-MdYXbMMI',
+    app_key: 'jfHtEKVE24j0IVCGHbvuFClp',
+    custom_api_server: '',
+
+    // 查询存储的记录
+    getRecord(Counter, url, title) {
+      return new Promise(function (resolve, reject) {
+        Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({url})))
+          .then(resp => resp.json())
+          .then(({results, code, error}) => {
+            if (code === 401) {
+              throw error;
+            }
+            if (results && results.length > 0) {
+              var record = results[0];
+              resolve(record);
+            } else {
+              Counter('post', '/classes/Counter', {url, title: title, times: 0})
+                .then(resp => resp.json())
+                .then((record, error) => {
+                  if (error) {
+                    throw error;
+                  }
+                  resolve(record);
+                }).catch(error => {
+                console.error('Failed to create', error);
+                reject(error);
+              });
+            }
+          }).catch((error) => {
+          console.error('LeanCloud Counter Error:', error);
+          reject(error);
+        });
+      })
+    },
+
+    // 发起自增请求
+    increment(Counter, incrArr) {
+      return new Promise(function (resolve, reject) {
+        Counter('post', '/batch', {
+          "requests": incrArr
+        }).then((res) => {
+          res = res.json();
+          if (res.error) {
+            throw res.error;
+          }
+          resolve(res);
+        }).catch((error) => {
+          console.error('Failed to save visitor count', error);
+          reject(error);
+        });
+      });
+    },
+
+    // 构建自增请求体
+    buildIncrement(objectId) {
+      return {
+        "method": "PUT",
+        "path": `/1.1/classes/Counter/${ objectId }`,
+        "body": {
+          "times": {
+            '__op': 'Increment',
+            'amount': 1
+          }
+        }
+      }
+    },
+
+    // 校验是否为有效的 UV
+    validUV() {
+      var key = 'LeanCloudUVTimestamp';
+      var flag = localStorage.getItem(key);
+      if (flag) {
+        // 距离标记小于 24 小时则不计为 UV
+        if (new Date().getTime() - parseInt(flag) <= 86400000) {
+          return false;
+        }
+      }
+      localStorage.setItem(key, new Date().getTime().toString());
+      return true;
+    },
+
+    addCount(Counter) {
+      var enableIncr = '' === 'true' && window.location.hostname !== 'localhost';
+      enableIncr = true;
+      var getterArr = [];
+      var incrArr = [];
+      // 请求 PV 并自增
+      var pvCtn = document.querySelector('#lc-sv');
+      if (pvCtn || enableIncr) {
+        var pvGetter = this.getRecord(Counter, 'https://old.blog.imyangty.com' + '/#lc-sv', 'Visits').then((record) => {
+          incrArr.push(this.buildIncrement(record.objectId))
+          var eles = document.querySelectorAll('#lc-sv #number');
+          if (eles.length > 0) {
+            eles.forEach((el,index,array)=>{
+              el.innerText = record.times + 1;
+              if (pvCtn) {
+                pvCtn.style.display = 'inline';
+              }
+            })
+          }
+        });
+        getterArr.push(pvGetter);
+      }
+
+      // 请求 UV 并自增
+      var uvCtn = document.querySelector('#lc-uv');
+      if (uvCtn || enableIncr) {
+        var uvGetter = this.getRecord(Counter, 'https://old.blog.imyangty.com' + '/#lc-uv', 'Visitors').then((record) => {
+          var vuv = this.validUV();
+          vuv && incrArr.push(this.buildIncrement(record.objectId))
+          var eles = document.querySelectorAll('#lc-uv #number');
+          if (eles.length > 0) {
+            eles.forEach((el,index,array)=>{
+              el.innerText = record.times + (vuv ? 1 : 0);
+              if (uvCtn) {
+                uvCtn.style.display = 'inline';
+              }
+            })
+          }
+        });
+        getterArr.push(uvGetter);
+      }
+
+      // 请求文章的浏览数，如果是当前页面就自增
+      var allPV = document.querySelectorAll('#lc-pv');
+      if (allPV.length > 0 || enableIncr) {
+        for (i = 0; i < allPV.length; i++) {
+          let pv = allPV[i];
+          let title = pv.getAttribute('data-title');
+          var url = 'https://old.blog.imyangty.com' + pv.getAttribute('data-path');
+          if (url) {
+            var viewGetter = this.getRecord(Counter, url, title).then((record) => {
+              // 是当前页面就自增
+              let curPath = window.location.pathname;
+              if (curPath.includes('index.html')) {
+                curPath = curPath.substring(0, curPath.lastIndexOf('index.html'));
+              }
+              if (pv.getAttribute('data-path') == curPath) {
+                incrArr.push(this.buildIncrement(record.objectId));
+              }
+              if (pv) {
+                var ele = pv.querySelector('#lc-pv #number');
+                if (ele) {
+                  if (pv.getAttribute('data-path') == curPath) {
+                    ele.innerText = (record.times || 0) + 1;
+                  } else {
+                    ele.innerText = record.times || 0;
+                  }
+                  pv.style.display = 'inline';
+                }
+              }
+            });
+            getterArr.push(viewGetter);
+          }
+        }
+      }
+
+      // 如果启动计数自增，批量发起自增请求
+      if (enableIncr) {
+        Promise.all(getterArr).then(() => {
+          incrArr.length > 0 && this.increment(Counter, incrArr);
+        })
+      }
+
+    },
+
+
+    fetchData(api_server) {
+      var Counter = (method, url, data) => {
+        return fetch(`${ api_server }/1.1${ url }`, {
+          method,
+          headers: {
+            'X-LC-Id': this.app_id,
+            'X-LC-Key': this.app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      this.addCount(Counter);
+    },
+
+    refreshCounter() {
+      var api_server = this.app_id.slice(-9) !== '-MdYXbMMI' ? this.custom_api_server : `https://${ this.app_id.slice(0, 8).toLowerCase() }.api.lncldglobal.com`;
+      if (api_server) {
+        this.fetchData(api_server);
+      } else {
+        fetch('https://app-router.leancloud.cn/2/route?appId=' + this.app_id)
+          .then(resp => resp.json())
+          .then(({api_server}) => {
+            this.fetchData('https://' + api_server);
+          });
+      }
+    }
+
+  };
+
+  LCCounter.refreshCounter();
+
+  document.addEventListener('pjax:complete', function () {
+    LCCounter.refreshCounter();
+  });
+</script>
+
+
+
+
+  <script>
+const rootElement = document.documentElement;
+const darkModeStorageKey = "user-color-scheme";
+const rootElementDarkModeAttributeName = "data-user-color-scheme";
+
+const setLS = (k, v) => {
+    localStorage.setItem(k, v);
+};
+
+const removeLS = (k) => {
+    localStorage.removeItem(k);
+};
+
+const getLS = (k) => {
+    return localStorage.getItem(k);
+};
+
+const getModeFromCSSMediaQuery = () => {
+  return window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
+};
+
+const resetRootDarkModeAttributeAndLS = () => {
+  rootElement.removeAttribute(rootElementDarkModeAttributeName);
+  removeLS(darkModeStorageKey);
+};
+
+const validColorModeKeys = {
+  dark: true,
+  light: true,
+};
+
+const applyCustomDarkModeSettings = (mode) => {
+  const currentSetting = mode || getLS(darkModeStorageKey);
+
+  if (currentSetting === getModeFromCSSMediaQuery()) {
+    resetRootDarkModeAttributeAndLS();
+  } else if (validColorModeKeys[currentSetting]) {
+    rootElement.setAttribute(rootElementDarkModeAttributeName, currentSetting);
+  } else {
+    resetRootDarkModeAttributeAndLS();
+  }
+};
+
+const invertDarkModeObj = {
+  dark: "light",
+  light: "dark",
+};
+
+/**
+ * get target mode
+ */
+const toggleCustomDarkMode = () => {
+  let currentSetting = getLS(darkModeStorageKey);
+
+  if (validColorModeKeys[currentSetting]) {
+    currentSetting = invertDarkModeObj[currentSetting];
+  } else if (currentSetting === null) {
+    currentSetting = invertDarkModeObj[getModeFromCSSMediaQuery()];
+  } else {
+    return;
+  }
+  setLS(darkModeStorageKey, currentSetting);
+  return currentSetting;
+};
+
+/**
+ * bind click event for toggle button
+ */
+var btn=$("#wrapper .toggle-mode-btn,#rightmenu-wrapper .toggle-mode-btn");
+function bindToggleButton() {
+    btn.on('click',(e) => {
+      const mode = toggleCustomDarkMode();
+      applyCustomDarkModeSettings(mode);
+    });
+}
+
+applyCustomDarkModeSettings();
+document.addEventListener("DOMContentLoaded", bindToggleButton);
+volantis.pjax.push(bindToggleButton);
+volantis.pjax.send(()=>{
+	btn.unbind('click');
+},'toggle-mode-btn-unbind');
+</script>
+
+
+
+
+
+
+
+
+<script>
+function listennSidebarTOC() {
+  const navItems = document.querySelectorAll(".toc li");
+  if (!navItems.length) return;
+  const sections = [...navItems].map((element) => {
+    const link = element.querySelector(".toc-link");
+    const target = document.getElementById(
+      decodeURI(link.getAttribute("href")).replace("#", "")
+    );
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      window.scrollTo({
+		top: target.offsetTop + 100,
+		
+		behavior: "smooth"
+		
+	  });
+    });
+    return target;
+  });
+
+  function activateNavByIndex(target) {
+    if (target.classList.contains("active-current")) return;
+
+    document.querySelectorAll(".toc .active").forEach((element) => {
+      element.classList.remove("active", "active-current");
+    });
+    target.classList.add("active", "active-current");
+    let parent = target.parentNode;
+    while (!parent.matches(".toc")) {
+      if (parent.matches("li")) parent.classList.add("active");
+      parent = parent.parentNode;
+    }
+  }
+
+  function findIndex(entries) {
+    let index = 0;
+    let entry = entries[index];
+    if (entry.boundingClientRect.top > 0) {
+      index = sections.indexOf(entry.target);
+      return index === 0 ? 0 : index - 1;
+    }
+    for (; index < entries.length; index++) {
+      if (entries[index].boundingClientRect.top <= 0) {
+        entry = entries[index];
+      } else {
+        return sections.indexOf(entry.target);
+      }
+    }
+    return sections.indexOf(entry.target);
+  }
+
+  function createIntersectionObserver(marginTop) {
+    marginTop = Math.floor(marginTop + 10000);
+    let intersectionObserver = new IntersectionObserver(
+      (entries, observe) => {
+        let scrollHeight = document.documentElement.scrollHeight + 100;
+        if (scrollHeight > marginTop) {
+          observe.disconnect();
+          createIntersectionObserver(scrollHeight);
+          return;
+        }
+        let index = findIndex(entries);
+        activateNavByIndex(navItems[index]);
+      },
+      {
+        rootMargin: marginTop + "px 0px -100% 0px",
+        threshold: 0,
+      }
+    );
+    sections.forEach((element) => {
+      element && intersectionObserver.observe(element);
+    });
+  }
+  createIntersectionObserver(document.documentElement.scrollHeight);
+}
+
+document.addEventListener("DOMContentLoaded", listennSidebarTOC);
+document.addEventListener("pjax:success", listennSidebarTOC);
+</script>
+
+<!-- more -->
+
+ 
+	   
+	    
+
+
+<script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.min.js"></script>
+
+
+<script>
+    var pjax;
+    document.addEventListener('DOMContentLoaded', function () {
+      pjax = new Pjax({
+        elements: 'a[href]:not([href^="#"]):not([href="javascript:void(0)"]):not([pjax-fancybox])',
+        selectors: [
+          "title",
+          
+          "#pjax-container",
+          "#pjax-header-nav-list"
+        ],
+        cacheBust: false,   // url 地址追加时间戳，用以避免浏览器缓存
+        timeout: 5000
+      });
+    });
+
+    document.addEventListener('pjax:send', function (e) {
+      //window.stop(); // 相当于点击了浏览器的停止按钮
+
+      try {
+        var currentUrl = window.location.pathname;
+        var targetUrl = e.triggerElement.href;
+        var banUrl = [""];
+        if (banUrl[0] != "") {
+          banUrl.forEach(item => {
+            if(currentUrl.indexOf(item) != -1 || targetUrl.indexOf(item) != -1) {
+              window.location.href = targetUrl;
+            }
+          });
+        }
+      } catch (error) {}
+
+      window.subData = null; // 移除标题（用于一二级导航栏切换处）
+
+      volantis.$switcher.removeClass('active'); // 关闭移动端激活的搜索框
+      volantis.$header.removeClass('z_search-open'); // 关闭移动端激活的搜索框
+      volantis.$wrapper.removeClass('sub'); // 跳转页面时关闭二级导航
+
+      // 解绑事件 避免重复监听
+      volantis.$topBtn.unbind('click');
+      $('.menu a').unbind('click');
+      $(window).unbind('resize');
+      $(window).unbind('scroll');
+      $(document).unbind('scroll');
+      $(document).unbind('click');
+      $('body').unbind('click');
+	  // 使用 volantis.pjax.send 方法传入pjax:send回调函数 参见layout/_partial/scripts/global.ejs
+	  volantis.pjax.method.send.start();
+    });
+
+    document.addEventListener('pjax:complete', function () {
+      $('.nav-main').find('.list-v').not('.menu-phone').removeAttr("style",""); // 移除小尾巴的移除
+      $('.menu-phone.list-v').removeAttr("style",""); // 移除小尾巴的移除
+      $('script[data-pjax], .pjax-reload script').each(function () {
+        $(this).parent().append($(this).remove());
+      });
+      try{
+		// 使用 volantis.pjax.push 方法传入重载函数 参见layout/_partial/scripts/global.ejs
+		volantis.pjax.method.complete.start();
+      } catch (e) {
+        console.log(e);
+      }
+    });
+
+    document.addEventListener('pjax:error', function (e) {
+	  // 使用 volantis.pjax.error 方法传入pjax:error回调函数 参见layout/_partial/scripts/global.ejs
+	  volantis.pjax.method.error.start();
+      window.location.href = e.triggerElement.href;
+    });
+</script>
+ 
+	  
+    </div>
+  </body>
+</html>
